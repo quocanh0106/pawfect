@@ -1,0 +1,18 @@
+{% assign original_price = 0 %}
+{% assign shippingLimit = settings.minimum_freeshipping | append: '00' | plus: 0 %}
+{%- if cart != empty -%}
+  {%- for item in cart.items -%}
+    {% assign lineItemOriginalPrice = item.variant.compare_at_price | times: item.quantity %}
+    {% assign original_price = original_price | plus: lineItemOriginalPrice %}
+  {%- endfor -%}
+{%- endif -%}
+<div class="js-contents" id="cart-drawer-total" {{ block.shopify_attributes }}>
+  <ul class="px-4 py-4 border-t border-border grid gap-2">
+    <li class="flex items-center justify-between gap-2">
+      <span class="text-base font-semibold text-primary capitalize leading-5">{{ 'sections.cart.subtotal' | t }}</span>
+      <span class="text-base font-semibold text-primary font-heading leading-5 uppercase totals__subtotal-value">
+        {{ cart.total_price | money }}
+      </span>
+    </li>
+  </ul>
+</div>

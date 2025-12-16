@@ -1,0 +1,142 @@
+{
+    "general": {
+      "continue_shopping": "Tiếp tục mua sắm",
+      "breadcrumbs": {
+        "home": "Trang chủ",
+        "help_center": "Trung tâm trợ giúp",
+        "search_results": "Kết quả tìm kiếm"
+      },
+      "search": {
+        "title": "Kết quả tìm kiếm",
+        "search": "Tìm kiếm",
+        "placeholder": "Bạn đang tìm gì?"
+      },
+      "copy": {
+        "infor": "Sao chép vào bộ nhớ",
+        "copied": "Đã sao chép"
+      },
+      "form": {
+        "email": "Email không hợp lệ.",
+        "username": "Tên người dùng không hợp lệ.",
+        "body": "Nội dung không hợp lệ.",
+        "phone": "Số điện thoại không hợp lệ.",
+        "default": "Trường này là bắt buộc."
+      },
+      "share": "Chia sẻ",
+      "toc": "MỤC LỤC"
+    },
+    "localization": {
+      "country_label": "Quốc gia/Khu vực",
+      "language_label": "Ngôn ngữ",
+      "update_language": "Cập nhật ngôn ngữ",
+      "update_country": "Cập nhật quốc gia/khu vực"
+    },
+    "cart": {
+      "title": "Giỏ hàng"
+    },
+    "wishlist": {
+      "wishlist": "Yêu thích",
+      "your_wishlist": "Danh sách yêu thích của bạn",
+      "item": " sản phẩm",
+      "items": " sản phẩm",
+      "wishlist_empty_note": "Lưu lại những món bạn yêu thích",
+      "wishlist_empty_subtitle": "Tìm thấy sản phẩm ưng ý? Chỉ cần nhấn vào biểu tượng trái tim trên hình ảnh sản phẩm!",
+      "notify": "Sản phẩm đã được thêm vào danh sách yêu thích",
+      "wishlist_empty_continue_shopping": "Tiếp tục mua sắm",
+      "clear_wishlist": "Xoá tất cả",
+      "clear_wishlist_title": "Xoá tất cả sản phẩm",
+      "clear_wishlist_subtitle": "Bạn có chắc chắn muốn xoá địa chỉ này không? Hành động này không thể hoàn tác.",
+      "remove": "XÁC NHẬN",
+      "cancel": "KHÔNG"
+    },
+    "newsletter": {
+      "label": "Email",
+      "success": "Cảm ơn bạn đã đăng ký",
+      "input_placeholder": "Nhập Email của bạn",
+      "submit": "Đăng ký!"
+    },
+    "paginate": {
+      "previous": "Trang trước",
+      "next": "Trang sau",
+      "page": "Trang"
+    },
+    "predictive_search": {
+      "recent_search": "Tìm kiếm gần đây",
+      "popular_search": "Tìm kiếm phổ biến",
+      "product_type": "Loại sản phẩm",
+      "product": "Sản phẩm",
+      "suggestion": "gợi ý",
+      "collections": "bộ sưu tập",
+      "description_html": "Rất tiếc, không có kết quả cho <span class=\"font-medium break-words\">“{{ term }}”<\/span>",
+      "view_all": "Xem tất cả"
+    },
+    "accessibility": {
+      "skip_to_text": "Chuyển đến nội dung",
+      "refresh_page": "Chọn mục sẽ làm mới toàn bộ trang."
+    },
+    "blogs": {
+      "article": {
+        "back": "Quay lại blog",
+        "updated_article": "Cập nhật vào",
+        "see_all": "Xem tất cả"
+      },
+      "trending_post": "Bài viết nổi bật"
+    },
+    "products": {
+      "shipping_information": {
+        "free_shipping": "Miễn phí vận chuyển",
+        "over": "Cho đơn hàng trên ",
+        "overmb": "Miễn phí vận chuyển cho đơn hàng trên ",
+        "estimated_arrival": "Dự kiến nhận hàng",
+        "order_placed": "Đơn hàng đã đặt",
+        "order_placed_mess": "Sau khi đặt hàng, chúng tôi cần 2-4 ngày làm việc để chuẩn bị giao.",
+        "order_ships": "Đơn hàng đang vận chuyển",
+        "delivered": "Đã giao hàng",
+        "delivered_mess": "Dự kiến giao vào ngày {{ date }}!",
+        "order_ships_mess": "Chúng tôi đã gửi đơn hàng đi."
+      },
+      "product": {
+        "example_product_title": "Tên sản phẩm mẫu",
+        "description": "Mô tả",
+        "details": "Chi tiết sản phẩm",
+        "shipping": "Vận chuyển",
+        "review": "Đánh giá",
+        "read": "Xem ngay",
+        "product_type": "Kiểu dáng",
+        "size": "Chọn kích cỡ",
+        "add_to_cart": "Thêm vào giỏ hàng",
+        "save_edit": "Lưu chỉnh sửa",
+        "on_sale": "Khuyến mãi",
+        "best_seller": "Bán chạy",
+        "saveprice": "Tiết kiệm",
+        "new": "Mới",
+        "shop_now": "Tùy chỉnh ngay",
+        "media": {
+          "image_available": "Hình ảnh {{ index }} hiện có trong thư viện"
+        },
+        "require": "* Bắt buộc",
+        "message_option": "* Vui lòng chọn {{ option }} trước",
+        "size_guide": "Hướng dẫn kích cỡ",
+        "sold_out": "Hết hàng",
+        "unavailable": "Không có sẵn",
+        "estimated_delivery": "Dự kiến giao hàng:",
+        "shipping_caculated_html": "Phí vận chuyển được tính <strong>khi thanh toán<\/strong>",
+        "size_guide_popup": {
+          "width": "Chiều rộng",
+          "length": "Chiều dài",
+          "length_description": "Đo từ đỉnh vai phía sau",
+          "chest": "Ngực",
+          "chest_description": "Đo ngang ngực, cách nách 1 inch khi đặt phẳng",
+          "size": "Kích cỡ",
+          "clear_wishlist_subtitle": "Sản phẩm này sẽ bị xoá vĩnh viễn. Không thể hoàn tác.",
+          "clear_all_wishlist_subtitles": "Các sản phẩm này sẽ bị xoá vĩnh viễn. Không thể hoàn tác.",
+          "inch": "Inch",
+          "centimeter": "Centimet"
+        }
+      }
+    },
+    "account_order_detail": {
+      "order_list": "Danh sách đơn hàng"
+    }
+  }
+  

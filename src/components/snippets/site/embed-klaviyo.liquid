@@ -1,0 +1,48 @@
+{% if customer %}
+  <script type="text/javascript">
+  var _learnq = _learnq || [];
+  document.addEventListener("DOMContentLoaded", () => {
+    _learnq.push(['identify', {
+      '$email': '{{customer.email}}'
+    }]);
+  });
+  </script>
+{% endif %}
+
+{% if template == 'cart' %}
+  <script type="text/javascript">
+   var _learnq = _learnq || [];
+ const identifyCustomerCheckout = setInterval(() => {
+   if (typeof _learnq.isIdentified === "function") {
+     identifyKlaviyoUserFromCheckout();
+     clearInterval(identifyCustomerCheckout);
+   }
+ }, 300)
+
+ function identifyKlaviyoUserFromCheckout() {
+   var storage_ui = localStorage['__ui'];
+   if(storage_ui&&!_learnq.isIdentified()){
+     var storage_ui_arr = JSON.parse(storage_ui);
+     storage_ui_arr.forEach(function(e){
+       if(e[1]['proposedState']){
+         var checkoutEmail = e[1]['proposedState'].email;
+         if (checkoutEmail&&IsEmail(checkoutEmail)) {
+           _learnq.push(['identify', {
+             '$email': checkoutEmail,
+           }]);
+         }
+       }
+     })
+   }
+ }
+
+ function IsEmail(email) {
+   var regex = /^([a-zA-Z0-9\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+   if (!regex.test(email)) {
+     return false;
+   } else {
+     return true;
+   }
+ }
+  </script>
+{% endif %}

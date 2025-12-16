@@ -1,0 +1,299 @@
+{%- style -%}
+  [data-section-id="{{ section.id }}"] {
+    background: {{ section.settings.background_color }};
+    padding-top: {{ section.settings.padding_top_mb }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mb }}px;
+  }
+  [data-section-id="{{ section.id }}"] .slider-slide { 
+    max-width: calc(100%/{{ section.settings.columns_mobile }} - {{ 16 | times: section.settings.columns_mobile | minus: 16 | divided_by: section.settings.columns_mobile }}px);
+  }
+
+  @media (min-width: 768px) {
+    [data-section-id="{{ section.id }}"] {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+
+    [data-section-id="{{ section.id }}"] .slider-slide { 
+      max-width: calc(100%/{{ section.settings.columns_tablet }} - {{ 24 | times: section.settings.columns_tablet | minus: 24 | divided_by: section.settings.columns_tablet }}px);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    [data-section-id="{{ section.id }}"] .slider-slide { 
+      max-width: calc(100%/{{ section.settings.columns_desktop }} - {{ 36 | times: section.settings.columns_desktop | minus: 36 | divided_by: section.settings.columns_desktop }}px);
+    }
+  }
+{%- endstyle -%}
+
+<div data-section-id="{{ section.id }}">
+  <div class="page-width-2 relative">
+    {% if section.settings.heading != blank %}
+      <h2 class="text-base lg:text-lg font-semibold text-primary mb-5">{{ section.settings.heading | escape }}</h2>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+      <slider-component>
+        <button
+          type="button"
+          name="previous"
+          aria-label="previous" 
+          class="prev-{{ section.id }} z-[1] after:absolute after:w-full after:h-full after:z-10 after:block absolute top-[calc(50%_+_15px)] translate-x-1/4 -translate-y-1/2 left-0 w-10 h-10 bg-background shadow-button leading-none cursor-pointer transition-all flex items-center justify-center p-0 rounded-[10px] border text-primary disabled:!opacity-35">
+          {%- render 'icon-prev', class: "w-7 h-7" -%}
+        </button>
+        <ul class="slider-wrapper flex gap-3 md:gap-6 lg:gap-9 slider-on-mobile slider-on-tablet slider-on-desktop" id="Slider-{{ section.id }}">
+          {% for block in section.blocks %}
+            <li id="Slide-{{ section.id }}-{{ forloop.index }}" class="block {{ block.settings.align_item }} slider-slide w-full">
+              <a
+                href="{{ block.settings.url_item | split: '?' | first }}"
+                class="relative block mx-auto {{ block.settings.image_type }} overflow-hidden group pb-[100%]"
+                title="{{ block.settings.anchor_text | default: block.settings.title }}">
+                {% if block.settings.image != blank %}
+                  <img
+                    src="{{ block.settings.image | image_url: width: 200 }}"
+                    srcset="{{ block.settings.image | image_url: width: 200 }} 200w"
+                    sizes="200px"
+                    {% if block.settings.image.alt != blank %}
+                    alt="{{ block.settings.image.alt | escape }}"
+                    {% else %}
+                    alt="{{ block.settings.image | split: "/" | last | replace: "-", " " | split: "." | first }}"
+                    {% endif %}
+                    class="group-hover:scale-105 transition-all absolute top-0 left-0 w-full h-full object-cover object-center {{ block.settings.image_type }} bg-image-placeholder bg-no-repeat bg-cover bg-center text-transparent"
+                    loading="lazy"
+                    width="200"
+                    height="{{ 200 | divided_by: block.settings.image.aspect_ratio }}"
+                    class="motion-reduce" />
+                {% else %}
+                  {{ 'image' | placeholder_svg_tag: 'group-hover:scale-105 transition-all mx-auto' }}
+                {% endif %}
+              </a>
+              {% if block.settings.title != blank %}
+                <a
+                  href="{{ block.settings.url_item | split: '?' | first }}"
+                  class="block overflow-hidden"
+                  title="{{ block.settings.anchor_text | default: block.settings.title }}">
+                  <h3 class="font-body font-medium capitalize text-sm leading-2 mt-2.5 lg:text-base text-inherit">{{ block.settings.title }}</h3>
+                </a>
+              {% endif %}
+            </li>
+          {%- endfor -%}
+        </ul>
+        <button
+          type="button"
+          name="next"
+          aria-label="next"
+          class="next-{{ section.id }} z-[1] after:absolute after:w-full after:h-full after:z-10 after:block absolute top-[calc(50%_+_15px)] -translate-y-1/2 -translate-x-1/4 right-0 w-10 h-10 bg-background shadow-button leading-none cursor-pointer transition-all flex items-center justify-center p-0 rounded-[10px] border text-primary disabled:!opacity-35">
+          {%- render 'icon-next', class: "w-7 h-7" -%}
+        </button>
+        <div class="slider-counter caption !hidden">
+          <span class="slider-counter--current">1</span>
+          <span aria-hidden="true"> / </span>
+          <span class="slider-counter--total">{{ section.blocks.size }}</span>
+        </div>
+        <div class="slider-dots mt-8 lg:mt-12 !hidden"></div>
+      </slider-component>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Image text link",
+    "tag": "section",
+    "class": "section",
+    "settings": [
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "url",
+        "id": "url",
+        "label": "Url shop button"
+      },
+      {
+        "type": "text",
+        "id": "heading",
+        "default": "Recipients",
+        "label": "Heading"
+      },
+      {
+        "type": "range",
+        "id": "columns_desktop",
+        "label": "Items per row in desktop",
+        "min": 1,
+        "max": 9,
+        "default": 6,
+        "step": 1
+      },
+      {
+        "type": "range",
+        "id": "columns_tablet",
+        "label": "Items per row in tablet",
+        "min": 1,
+        "max": 9,
+        "default": 4,
+        "step": 1
+      },
+      {
+        "type": "range",
+        "id": "columns_mobile",
+        "label": "Items per row in mobile",
+        "min": 1,
+        "max": 6,
+        "default": 2,
+        "step": 1
+      },
+      {
+        "type": "header",
+        "content": "Padding desktop"
+      },
+      {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 200,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding top",
+        "default": 20
+      },
+      {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 200,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding bottom",
+        "default": 20
+      },
+      {
+        "type": "header",
+        "content": "Padding mobile"
+      },
+      {
+        "type": "range",
+        "id": "padding_top_mb",
+        "min": 0,
+        "max": 200,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding top",
+        "default": 40
+      },
+      {
+        "type": "range",
+        "id": "padding_bottom_mb",
+        "min": 0,
+        "max": 200,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding bottom",
+        "default": 40
+      }
+    ],
+    "blocks": [
+      {
+        "name": "Image text link",
+        "type": "itl",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+          },
+          {
+            "type": "select",
+            "id": "image_type",
+            "label": "Image type",
+            "default": "rounded-none",
+            "options": [
+              {
+                "value": "rounded-full",
+                "label": "Circle"
+              },
+              {
+                "value": "rounded-[10px]",
+                "label": "square"
+              },
+              {
+                "value": "rounded-none",
+                "label": "Normal"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Heading",
+            "default": "Heading item"
+          },
+          {
+            "type": "url",
+            "id": "url_item",
+            "label": "Url item"
+          },
+          {
+            "type": "text",
+            "id": "anchor_text",
+            "label": "Anchor text"
+          },
+          {
+            "type": "select",
+            "id": "align_item",
+            "label": "Text alignment item",
+            "default": "text-center",
+            "options": [
+              {
+                "value": "text-left",
+                "label": "Left"
+              },
+              {
+                "value": "text-center",
+                "label": "Center"
+              },
+              {
+                "value": "text-right",
+                "label": "Right"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Image text link",
+        "blocks": [
+          {
+            "type": "itl",
+            "settings": {
+              "title": "Gifts for Mum"
+            }
+          },
+          {
+            "type": "itl",
+            "settings": {
+              "title": "Gifts for Dad"
+            }
+          },
+          {
+            "type": "itl",
+            "settings": {
+              "title": "Gifts for Grandma"
+            }
+          },
+          {
+            "type": "itl",
+            "settings": {
+              "title": "Gifts for Grandad"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,120 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+ {
+  "sections": {
+    "template": {
+      "type": "template-search",
+      "settings": {}
+    },
+        "link_box_1": {
+      "type": "link-box",
+      "blocks": {
+        "box_1": {
+          "type": "box",
+          "settings": {
+            "heading": "For Her",
+            "url": "",
+            "text_color": "#000000",
+            "background_color": "#ebeaeb"
+          }
+        },
+        "box_2": {
+          "type": "box",
+          "settings": {
+            "heading": "For Him",
+            "url": "",
+            "text_color": "#000000",
+            "background_color": "#ebeaeb"
+          }
+        },
+        "box_3": {
+          "type": "box",
+          "settings": {
+            "heading": "Kids & Baby",
+            "url": "",
+            "text_color": "#000000",
+            "background_color": "#ebeaeb"
+          }
+        },
+        "box_4": {
+          "type": "box",
+          "settings": {
+            "heading": "Friend",
+            "url": "",
+            "text_color": "#000000",
+            "background_color": "#ebeaeb"
+          }
+        },
+        "box_5": {
+          "type": "box",
+          "settings": {
+            "heading": "Pet Lover",
+            "url": "",
+            "text_color": "#000000",
+            "background_color": "#ebeaeb"
+          }
+        },
+        "box_6": {
+          "type": "box",
+          "settings": {
+            "heading": "Grandparent",
+            "url": "",
+            "text_color": "#000000",
+            "background_color": "#ebeaeb"
+          }
+        },
+        "box_7": {
+          "type": "box",
+          "settings": {
+            "heading": "Coworker",
+            "url": "",
+            "text_color": "#000000",
+            "background_color": "#ebeaeb"
+          }
+        }
+      },
+      "block_order": [
+        "box_1",
+        "box_2",
+        "box_3",
+        "box_4",
+        "box_5",
+        "box_6",
+        "box_7"
+      ],
+      "settings": {
+        "heading_tag": "h2",
+        "heading": "Who are you shopping for today?",
+        "padding_top": 0,
+        "padding_bottom": 20,
+        "padding_top_mb": 0,
+        "padding_bottom_mb": 10
+      }
+    },
+    "recently_viewed_product": {
+      "type": "recently-viewed-product",
+      "settings": {
+        "fullwidth": false,
+        "heading": "Recently Viewed Products",
+        "background_color": "#ffffff",
+        "padding_top": 40,
+        "padding_bottom": 40,
+        "padding_top_mb": 40,
+        "padding_bottom_mb": 40
+      }
+    }
+  },
+  "order": [
+    "template",
+    "link_box_1",
+    "recently_viewed_product"
+    
+  ]
+}

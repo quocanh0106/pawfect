@@ -1,0 +1,243 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+ {
+  "current": {
+    "favicon": "shopify://shop_images/Family_Store_logo_1200x1200_a15d9551-90bd-47bd-a6cf-12388a8bf90f.png",
+    "logo": "shopify://shop_images/logover2-04-04.png",
+    "logo_width": 184,
+    "logo_mb": "shopify://shop_images/logover2-04-04.png",
+    "logo_width_mb": 116,
+    "rem": 15,
+    "type_heading_font_medium": "poppins_n5",
+    "type_body_font": "poppins_n4",
+    "type_body_font_medium": "poppins_n5",
+    "color_primary": "#000000",
+    "color_secondary": "#202024",
+    "color_secondary_dark": "#10263e",
+    "color_special": "#e95d2c",
+    "color_body_text": "#000000",
+    "color_subtext": "#626262",
+    "color_border": "#cccccc",
+    "container": 1280,
+    "container_2": 1480,
+    "padding_desktop": 16,
+    "padding_tablet": 16,
+    "padding_mobile": 16,
+    "customily": true,
+    "sections": {
+      "header": {
+        "type": "header",
+        "blocks": {
+          "mega_menu_xrQDiJ": {
+            "type": "mega-menu",
+            "settings": {
+              "title": "Mother's Day",
+              "url": "shopify://collections/mothers-day",
+              "menu": "",
+              "primary": true
+            }
+          },
+          "mega_menu_x6ycFB": {
+            "type": "mega-menu",
+            "settings": {
+              "title": "Occasions",
+              "url": "",
+              "menu": "",
+              "primary": false
+            }
+          },
+          "mega_menu_XA9L7a": {
+            "type": "mega-menu",
+            "settings": {
+              "title": "Recipent",
+              "url": "",
+              "menu": "",
+              "primary": false
+            }
+          },
+          "mega_menu_zy6Da7": {
+            "type": "mega-menu",
+            "settings": {
+              "title": "By Product",
+              "url": "",
+              "menu": "",
+              "primary": false
+            }
+          },
+          "mega_menu_g6A4VB": {
+            "type": "mega-menu",
+            "settings": {
+              "title": "Hobby",
+              "url": "",
+              "menu": "",
+              "primary": false
+            }
+          },
+          "mega_menu_Xn3iPE": {
+            "type": "mega-menu",
+            "settings": {
+              "title": "Happy Customers",
+              "url": "shopify://pages/happy-customer",
+              "menu": "",
+              "primary": false
+            }
+          },
+          "mega_menu_QAMbyL": {
+            "type": "mega-menu",
+            "settings": {
+              "title": "Contact Us",
+              "url": "shopify://pages/contact-us",
+              "menu": "",
+              "primary": false
+            }
+          }
+        },
+        "block_order": [
+          "mega_menu_xrQDiJ",
+          "mega_menu_x6ycFB",
+          "mega_menu_XA9L7a",
+          "mega_menu_zy6Da7",
+          "mega_menu_g6A4VB",
+          "mega_menu_Xn3iPE",
+          "mega_menu_QAMbyL"
+        ],
+        "settings": {
+          "top_menu": ""
+        }
+      },
+      "footer": {
+        "type": "footer",
+        "blocks": {
+          "text_naNeVg": {
+            "type": "text",
+            "settings": {
+              "col_span_desktop": 1,
+              "col_span_tablet": 1,
+              "col_span_mobile": 1,
+              "heading": "Familystore™",
+              "email": "",
+              "address": "<b>United States:</b>  11030 South Langley Avenue, Chicago, Illinois 60628, United States",
+              "address_2": "<b>US Office:</b> 1603 Capitol Avenue, Suite 413A #2932 , Cheyenne , WY ,82001 , United States",
+              "address_3": "",
+              "address_4": "",
+              "heading_2": "GET IN TOUCH!",
+              "time_work": "<b>Support Time:</b> 9 AM to 5 PM, Mon-Sat",
+              "heading_social": "Be Social Stay Connected!",
+              "show_social": false
+            }
+          },
+          "link_list_TNFYGr": {
+            "type": "link_list",
+            "settings": {
+              "col_span_desktop": 1,
+              "col_span_tablet": 1,
+              "col_span_mobile": 1,
+              "heading": "Informations",
+              "menu": ""
+            }
+          },
+          "link_list_G4UJ3k": {
+            "type": "link_list",
+            "settings": {
+              "col_span_desktop": 1,
+              "col_span_tablet": 1,
+              "col_span_mobile": 1,
+              "heading": "Policies",
+              "menu": ""
+            }
+          },
+          "link_list_M4fCNc": {
+            "type": "link_list",
+            "settings": {
+              "col_span_desktop": 1,
+              "col_span_tablet": 1,
+              "col_span_mobile": 1,
+              "heading": "Help",
+              "menu": ""
+            }
+          }
+        },
+        "block_order": [
+          "text_naNeVg",
+          "link_list_TNFYGr",
+          "link_list_G4UJ3k",
+          "link_list_M4fCNc"
+        ],
+        "settings": {
+          "background": "#f7f7f7",
+          "heading_color": "#000000",
+          "text_color": "#000000",
+          "text_hover_color": "#202024",
+          "social_color": "#000000",
+          "social_hover_color": "#202024",
+          "border_color": "#d6d6d6",
+          "col_per_row_desktop": 4,
+          "col_per_row_tablet": 2,
+          "col_per_row_mobile": 1,
+          "copyright": "© 2025 Familystore™",
+          "show_localization": false
+        }
+      },
+      "announcement-bar": {
+        "type": "announcement-bar",
+        "blocks": {
+          "announcement-bar-0": {
+            "type": "announcement",
+            "settings": {
+              "heading": "<p>🎁 Everything On Sale - Up to 50% 🎁</p>",
+              "heading_link": "",
+              "text": "<p>Extra 10% off order 2+ with code:<strong> DC10</strong></p>",
+              "link": "",
+              "open_new_window": false
+            }
+          }
+        },
+        "block_order": [
+          "announcement-bar-0"
+        ],
+        "settings": {
+          "background_color": "#202024",
+          "heading_color": "FF4830",
+          "text_color": "#ffffff"
+        }
+      },
+      "newsletter": {
+        "type": "newsletter",
+        "settings": {
+          "background_section": "#f7f7f7",
+          "background_section_mb": "#f7f7f7",
+          "action_url": "https://manage.kmail-lists.com/subscriptions/subscribe?a=RdjqSp&g=Y9JrUv",
+          "heading": "UNLOCK YOUR 10% OFF!",
+          "color_heading": "#202024",
+          "color_heading_mb": "#202024",
+          "text": "Deals and handpicked gift ideas, made just for you!",
+          "color_paragraph": "#202024",
+          "color_paragraph_mb": "#202024",
+          "padding_top": 0,
+          "padding_bottom": 0,
+          "padding_top_mb": 0,
+          "padding_bottom_mb": 0
+        }
+      },
+      "top-header": {
+        "type": "top-header",
+        "settings": {
+          "background": "#f5f5f5",
+          "color": "#626262",
+          "top_menu": ""
+        }
+      }
+    },
+    "content_for_index": []
+  },
+  "presets": {
+    "Default": {}
+  }
+}

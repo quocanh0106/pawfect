@@ -1,0 +1,263 @@
+<link rel="stylesheet" href="{{ 'template-contact.css' | asset_url }}" />
+
+{% style %}
+  #shopify-section-{{ section.id }} {
+    {%- if section.settings.background_color != blank -%}background-color: {{ section.settings.background_color }};{%- endif -%}
+    margin-top: {{ section.settings.margin_top_mb }}px;
+    margin-bottom: {{ section.settings.margin_bottom_mb }}px;
+  }
+
+  @media (min-width: 1024px) {
+    #shopify-section-{{ section.id }} {
+      margin-top: {{ section.settings.margin_top }}px;
+      margin-bottom: {{ section.settings.margin_bottom }}px;
+    }
+  }
+
+  [data-section-id="{{ section.id }}"] {
+    padding-top: {{ section.settings.padding_top_mb }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mb }}px;
+  }
+
+  @media (min-width: 1024px) {
+    [data-section-id="{{ section.id }}"] {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="relative contact-tab normal-tab page-width" data-section-id="{{ section.id }}" id="contact-section">
+  {% for block in section.blocks %}
+    {% case block.type %}
+      {% when 'contact-form' %}
+        <div data-id="{{ section.id }}-{{ block.id }}" class="relative overflow-hidden tab-detail bg-background w-full">
+          {%- if block.settings.title != blank -%}
+            <{{ block.settings.heading_tag }} class="text-xl lg:text-2xl font-semibold text-primary mb-5">
+              {{ block.settings.title }}
+            </{{ block.settings.heading_tag }}>
+          {%- endif -%}
+          {%- if block.settings.description != blank -%}
+            <p class="hidden lg:block text-sm leading-5 font-normal text-primary lg:text-base lg:leading-6 text-left">{{ block.settings.description }}</p>
+          {%- endif -%}
+          <validate-form class="block lg:mt-10">
+            {%- form 'contact', novalidate: 'novalidate' -%}
+              {%- if form.errors -%}
+                <div class='p-3 border border-error-opacity-30 bg-error-opacity-30 text-error rounded-lg my-6 lg:my-5'>
+                  <p class="text-xs leading-5 font-medium">{{ 'templates.contact.form.error_heading' | t }}</p>
+                  <ul class='px-4 mb-3 list-decimal list-inside'>
+                    {%- for error in form.errors -%}
+                      <li class="font-normal text-xs leading-5">{{ form.errors.messages[error] }}</li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              {%- elsif form.posted_successfully? -%}
+                <modal-dialog id="contact-successfull" class="transition-all absolute w-full h-full bg-background top-0 left-0 z-20">
+                  <div class="w-full h-full text-primary text-sm leading-5 lg:text-base lg:leading-6 font-normal p-4 lg:p-12 flex items-center flex-col justify-center">
+                    {% render 'icon-success-message', class: "block w-16 h-16 lg:w-[88px] lg:h-[88px] mb-4 lg:mb-5" %}
+                    <div class="text-h4 lg:text-h3 text-center font-semibold font-heading mb-3 max-w-[402px] mx-auto">{{ 'templates.contact.form.post_success_heading' | t }}</div>
+                    <p class="text-sm leading-5 lg:text-base lg:leading-6 text-center mb-4 lg:mb-6 max-w-[438px] mx-auto">{{ 'templates.contact.form.post_success' | t }}</p>
+                    <button type="button" class="btn btn-2 !uppercase py-3.5 max-w-[360px] close w-full mx-auto" >{{ 'templates.contact.form.continue_submit' | t }}</button>
+                  </div>
+                </modal-dialog>
+              {%- endif -%}
+
+              <div class="flex flex-wrap">
+                <div class="w-full mb-6 lg:mb-5 leading-none">
+                  <label class="text-base font-normal leading-4 font-heading text-primary mb-2 block" for="contact_name">{{ 'templates.contact.form.name' | t }}</label>
+                  <input
+                    class="border border-border focus:border-subtext hover:border-subtext active:border-subtext !ring-0 font-normal border-solid w-full text-base leading-4 px-3 py-3 rounded-lg"
+                    placeholder="{{ 'templates.contact.form.name_placeholder' | t }}"
+                    id="contact_name"
+                    name="contact[name]"
+                    data-name="name"
+                    type="text">
+                </div>
+                <div class="w-full mb-6 lg:mb-5 leading-none">
+                  <label class="text-base font-normal leading-4 font-heading text-primary mb-2 block" for="contact_email">{{ 'templates.contact.form.email' | t }}</label>
+                  <input class="border border-border focus:border-subtext hover:border-subtext active:border-subtext !ring-0 font-normal border-solid w-full text-base leading-4 px-3 py-3 rounded-lg"
+                    id="contact_email"
+                    placeholder="{{ 'templates.contact.form.email_placeholder' | t }}"
+                    name="contact[email]"
+                    data-name="email"
+                    type="email">
+                </div>
+              </div>
+              <div class="w-full mb-6 lg:mb-10 leading-none">
+                <label class="text-base font-normal leading-4 font-heading text-primary mb-2 block" for="contact_message">{{ 'templates.contact.form.comment' | t }}</label>
+                <textarea class="resize-none h-16.5 lg:h-19 border border-border focus:border-subtext hover:border-subtext active:border-subtext !ring-0 font-normal border-solid w-full text-base leading-4 px-3 py-3 rounded-lg" 
+                  placeholder="{{ 'templates.contact.form.comment_placeholder' | t }}"
+                  id="contact_message" 
+                  data-name="body"
+                  name="contact[body]"></textarea>
+              </div>
+              <button class="btn-2 px-6 lg:px-12 flex items-center justify-center h-10.5 lg:h-12.5 !font-heading !font-bold !text-base !leading-none lg:!text-base lg:!leading-none !uppercase w-full lg:w-fit" type="submit" value="{{ 'templates.contact.form.send' | t }}">
+                Submit
+              </button>
+            {%- endform -%}
+          </validate-form>
+        </div>
+    {% endcase %}
+  {% endfor %}
+</tabs-component>
+
+{% capture helpCenter %}{{ 'template-contact.js' | asset_url }}{% endcapture %}
+{% render 'atom_script', src: helpCenter, priority: 'normal', type: "defer" %}
+
+{% schema %}
+  {
+    "name": "Template contact",
+    "tag": "section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Pading desktop"
+      },
+      {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "label": "Pading top",
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "label": "Pading bottom",
+        "default": 16
+      },
+      {
+        "type": "header",
+        "content": "Pading mobile"
+      },
+      {
+        "type": "range",
+        "id": "padding_top_mb",
+        "min": 0,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "label": "Pading top",
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "padding_bottom_mb",
+        "min": 0,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "label": "Pading bottom",
+        "default": 16
+      },
+      {
+        "type": "header",
+        "content": "Margin desktop"
+      },
+      {
+        "type": "range",
+        "id": "margin_top",
+        "min": 0,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "label": "Margin top",
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "margin_bottom",
+        "min": 0,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "label": "Margin bottom",
+        "default": 16
+      },
+      {
+        "type": "header",
+        "content": "Margin mobile"
+      },
+      {
+        "type": "range",
+        "id": "margin_top_mb",
+        "min": 0,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "label": "Margin top",
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "margin_bottom_mb",
+        "min": 0,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "label": "Margin bottom",
+        "default": 16
+      }
+    ],
+    "blocks": [
+      {
+        "type": "contact-form",
+        "name": "Contact form",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Get in Touch with Us"
+          },
+          {
+            "type": "select",
+            "id": "heading_tag",
+            "label": "Heading tag",
+            "default": "h2",
+            "options": [
+              {
+                "value": "h1",
+                "label": "Heading 1"
+              },
+              {
+                "value": "h2",
+                "label": "Heading 2"
+              },
+              {
+                "value": "h3",
+                "label": "Heading 3"
+              },
+              {
+                "value": "h4",
+                "label": "Heading 4"
+              },
+              {
+                "value": "h5",
+                "label": "Heading 5"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "id": "description",
+            "label": "Description",
+            "default": "Let's find out how we can assist you."
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Template contact"
+      }
+    ]
+  }
+{% endschema %}

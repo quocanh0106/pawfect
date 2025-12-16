@@ -1,0 +1,38 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+ {
+  "sections": {
+     "page_banner": {
+      "type": "page-banner",
+      "settings": {
+        "color_title": "#000",
+        "color_link": "#000",
+        "color_subtitle": "#000",
+        "background_color": "#FFFFFF",
+        "padding_vertical": 0,
+        "padding_horizontal": 0,
+        "padding_vertical_mb": 0,
+        "padding_horizontal_mb": 0,
+        "margin_top": 32,
+        "margin_bottom": 16,
+        "margin_top_mb": 32,
+        "margin_bottom_mb": 16
+      }
+    },
+    "template": {
+      "type": "template-list-collections",
+      "settings": {}
+    }
+  },
+  "order": [
+    "page_banner",
+    "template"
+  ]
+}

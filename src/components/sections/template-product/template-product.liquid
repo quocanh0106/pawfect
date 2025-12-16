@@ -1,0 +1,1719 @@
+<link rel="stylesheet" href="{{ 'template-product.css' | asset_url }}" />
+{% if settings.customily %}
+  <link rel="stylesheet" href="{{ 'template-product-customily.css' | asset_url }}" />
+{% endif %}
+<script>
+  window.product = {{ product | json }}
+</script>
+
+<script id="product-card" type="text/html">
+  <li class="slider-slide w-full">{% render 'product-card', product: product, use_variant: true %}</li>
+</script>
+{% liquid
+  assign variants_available_arr = product.variants | map: 'available'
+  assign variants_option1_arr = product.variants | map: 'option1'
+  assign variants_option2_arr = product.variants | map: 'option2'
+  assign variants_option3_arr = product.variants | map: 'option3'
+  assign product_form_id = 'product-form-' | append: section.id
+
+  for ship in shop.metaobjects.shipping.values
+    if ship.product_type == product.type 
+      assign shipping = ship
+    endif
+  endfor
+
+  assign hourNow = 'now' | date: '%H'
+  assign dateNow = 'now' | date: '%d'
+  assign monthNow = 'now' | date: '%m'
+
+  assign productSold = product.id | divided_by: 90 | round | slice: -2, 2 | plus: hourNow | plus: dateNow | plus: monthNow
+%}
+
+<section id="MainProduct-{{ section.id }}" data-section="{{ section.id }}">
+  <div class="page-width flex flex-wrap lg:flex-nowrap mt-5">
+    <div class="product-media-wrapper w-full{% if product.media.size > 0 %} lg:max-w-[60%]{% else %} lg:max-w-full{% endif %} h-fit transition-all duration-200 static lg:sticky lg:top-4">
+      {% render 'product-media-gallery', product: product, section: section %}
+    </div>
+    <product-infor class="block w-full h-fit {% if product.media.size > 0 %} lg:max-w-[40%] {% endif %} px-0 py-6 lg:pl-5 lg:py-0" id="ProductInfo-{{ section.id }}" data-product="{{ product.handle }}" data-recently-view="{{ settings.recently_view_limit }}">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'text' -%}
+            <p class="text-sm lg:text-base leading-4 {% if block.settings.text_style == 'uppercase' %} uppercase{% elsif block.settings.text_style == 'subtitle' %} normal-case{% endif %}">
+              {{- block.settings.text -}}
+            </p>
+          {%- when 'rating' -%}
+            <div class="flex items-center justify-between gap-3">
+              {{ product.metafields.judgeme.badge }}
+              {% if product.tags contains 'new' or product.tags contains 'New' %}
+                <div class="flex items-center gap-1.5">
+                  <div class="relative flex items-center rounded-l bg-[#d6ffe9] text-xs text-[#00b958] font-medium leading-none pl-2 pr-4 h-6">
+                    New!
+                    <div class="!block bg-background absolute rotate-45 w-6 h-6 -right-4.5 top-0"></div>
+                  </div>
+                  <span class="relative text-[13px] leading-1 text-primary">in {{ product.type }}</span>
+                </div>
+              {% elsif product.tags contains 'hot' or product.tags contains 'Hot' %}
+                <div class="flex items-center gap-1.5">
+                  <div class="relative flex items-center rounded-l bg-error-opacity-10 text-xs text-error leading-none pl-2 pr-4 h-6">
+                    Hot!
+                    <div class="!block bg-background absolute rotate-45 w-6 h-6 -right-4.5 top-0"></div>
+                  </div>
+                  <span class="relative text-[13px] leading-1 text-primary">in {{ product.type }}</span>
+                </div>
+              {% elsif product.tags contains 'trending' or product.tags contains 'Trending' %}
+                <div class="flex items-center gap-1.5">
+                  <div class="relative flex items-center rounded-l bg-[#EAEAEA] text-xs text-special leading-none pl-2 pr-4 h-6">
+                    Trending
+                    <div class="!block bg-background absolute rotate-45 w-6 h-6 -right-4.5 top-0"></div>
+                  </div>
+                  <span class="relative text-[13px] leading-1 text-primary">in {{ product.type }}</span>
+                </div>  
+              {% endif %}
+            </div>
+          {%- when 'title' -%}
+            <div class="mb-0">
+              <h1 class="text-base leading-5 font-semibold font-heading tracking-wide">{{ product.title | escape }}</h1>
+            </div>
+          {%- when 'price' -%}
+            <div id="price-{{ section.id }}" role="status" {{ block.shopify_attributes }}>
+              {%- render 'price' , product: product , use_variant: true , show_badges: true , show: true -%}
+            </div>
+          {%- when 'shipping-box' -%}
+            <delivery-wrapper data-assets-folder="{{ 'us.svg' | asset_url }}" class="relative grid gap-2 min-w-fit max-w-full my-2.5" data-content='{{ shipping | json }}'>
+              <div class="flex gap-2 items-center">
+                <img src="{{ 'us.svg' | asset_url }}" class="w-7 h-auto flag rounded-[3px] overflow-hidden flex-none" width="28" height="18" loading="lazy" />
+                <span class="text-primary text-sm leading-5 font-light flex-none">
+                  Deliver to
+                </span>
+                <modal-opener data-id="#select-country" class="flex gap-1 items-center cursor-pointer">
+                  <span class="country-name text-sm leading-4 font-normal text-[#32ADE6]">United States</span>
+                  {% render 'icon-down', class: 'w-4.5 h-4.5 text-[#32ADE6] flex-none' %}
+                </modal-opener>
+
+                <select-country id="select-country" class="hidden fixed w-full h-full bg-black bg-opacity-20 top-0 left-0 z-20">
+                  <div class="rounded-2xl shadow-popup max-w-[calc(100vw_-_32px)] max-h-[calc(100vh_-_32px)] w-[343px] lg:overflow-auto bg-background absolute top-1/2 left-1/2 z-30 -translate-x-1/2 -translate-y-1/2">
+                    <div class="px-6 pt-6">
+                      <span class="absolute top-2 right-2 text-primary cursor-pointer bg-background flex items-center justify-center close">
+                        {% render 'icon-close', class: 'w-5 h-5' %}
+                      </span>
+                      <label for="select-country-form" class="block text-base font-normal leading-4 font-heading text-primary mb-2">Select your shipping country</label>
+                      <select class="w-full rounded-lg h-11 border border-border py-2 px-5 pr-10 text-base" name="select-country" id="select-country-form">
+                          <option value="AD">Andorra</option>
+                          <option value="AE">United Arab Emirates</option>
+                          <option value="AF">Afghanistan</option>
+                          <option value="AG">Antigua and Barbuda</option>
+                          <option value="AI">Anguilla</option>
+                          <option value="AL">Albania</option>
+                          <option value="AM">Armenia</option>
+                          <option value="AO">Angola</option>
+                          <option value="AQ">Antarctica</option>
+                          <option value="AR">Argentina</option>
+                          <option value="AS">American Samoa</option>
+                          <option value="AT">Austria</option>
+                          <option value="AU">Australia</option>
+                          <option value="AW">Aruba</option>
+                          <option value="AX">&#197;land Islands</option>
+                          <option value="AZ">Azerbaijan</option>
+                          <option value="BA">Bosnia and Herzegovina</option>
+                          <option value="BB">Barbados</option>
+                          <option value="BD">Bangladesh</option>
+                          <option value="BE">Belgium</option>
+                          <option value="BF">Burkina Faso</option>
+                          <option value="BG">Bulgaria</option>
+                          <option value="BH">Bahrain</option>
+                          <option value="BI">Burundi</option>
+                          <option value="BJ">Benin</option>
+                          <option value="BL">Saint Barthélemy</option>
+                          <option value="BM">Bermuda</option>
+                          <option value="BN">Brunei Darussalam</option>
+                          <option value="BO">Bolivia, Plurinational State of</option>
+                          <option value="BQ">Caribbean Netherlands</option>
+                          <option value="BR">Brazil</option>
+                          <option value="BS">Bahamas</option>
+                          <option value="BT">Bhutan</option>
+                          <option value="BV">Bouvet Island</option>
+                          <option value="BW">Botswana</option>
+                          <option value="BY">Belarus</option>
+                          <option value="BZ">Belize</option>
+                          <option value="CA">Canada</option>
+                          <option value="CC">Cocos (Keeling) Islands</option>
+                          <option value="CD">Congo, the Democratic Republic of the</option>
+                          <option value="CF">Central African Republic</option>
+                          <option value="CG">Republic of the Congo</option>
+                          <option value="CH">Switzerland</option>
+                          <option value="CI">C&#244;te d'Ivoire</option>
+                          <option value="CK">Cook Islands</option>
+                          <option value="CL">Chile</option>
+                          <option value="CM">Cameroon</option>
+                          <option value="CN">China (People's Republic of China)</option>
+                          <option value="CO">Colombia</option>
+                          <option value="CR">Costa Rica</option>
+                          <option value="CU">Cuba</option>
+                          <option value="CV">Cape Verde</option>
+                          <option value="CW">Cura&#231;ao</option>
+                          <option value="CX">Christmas Island</option>
+                          <option value="CY">Cyprus</option>
+                          <option value="CZ">Czech Republic</option>
+                          <option value="DE">Germany</option>
+                          <option value="DJ">Djibouti</option>
+                          <option value="DK">Denmark</option>
+                          <option value="DM">Dominica</option>
+                          <option value="DO">Dominican Republic</option>
+                          <option value="DZ">Algeria</option>
+                          <option value="EC">Ecuador</option>
+                          <option value="EE">Estonia</option>
+                          <option value="EG">Egypt</option>
+                          <option value="EH">Western Sahara</option>
+                          <option value="ER">Eritrea</option>
+                          <option value="ES">Spain</option>
+                          <option value="ET">Ethiopia</option>
+                          <option value="EU">Europe</option>
+                          <option value="FI">Finland</option>
+                          <option value="FJ">Fiji</option>
+                          <option value="FK">Falkland Islands (Malvinas)</option>
+                          <option value="FM">Micronesia, Federated States of</option>
+                          <option value="FO">Faroe Islands</option>
+                          <option value="FR">France</option>
+                          <option value="GA">Gabon</option>
+                          <option value="GB-ENG">England</option>
+                          <option value="GB-NIR">Northern Ireland</option>
+                          <option value="GB-SCT">Scotland</option>
+                          <option value="GB-WLS">Wales</option>
+                          <option value="GB">United Kingdom</option>
+                          <option value="GD">Grenada</option>
+                          <option value="GE">Georgia</option>
+                          <option value="GF">French Guiana</option>
+                          <option value="GG">Guernsey</option>
+                          <option value="GH">Ghana</option>
+                          <option value="GI">Gibraltar</option>
+                          <option value="GL">Greenland</option>
+                          <option value="GM">Gambia</option>
+                          <option value="GN">Guinea</option>
+                          <option value="GP">Guadeloupe</option>
+                          <option value="GQ">Equatorial Guinea</option>
+                          <option value="GR">Greece</option>
+                          <option value="GS">South Georgia and the South Sandwich Islands</option>
+                          <option value="GT">Guatemala</option>
+                          <option value="GU">Guam</option>
+                          <option value="GW">Guinea-Bissau</option>
+                          <option value="GY">Guyana</option>
+                          <option value="HK">Hong Kong</option>
+                          <option value="HM">Heard Island and McDonald Islands</option>
+                          <option value="HN">Honduras</option>
+                          <option value="HR">Croatia</option>
+                          <option value="HT">Haiti</option>
+                          <option value="HU">Hungary</option>
+                          <option value="ID">Indonesia</option>
+                          <option value="IE">Ireland</option>
+                          <option value="IL">Israel</option>
+                          <option value="IM">Isle of Man</option>
+                          <option value="IN">India</option>
+                          <option value="IO">British Indian Ocean Territory</option>
+                          <option value="IQ">Iraq</option>
+                          <option value="IR">Iran, Islamic Republic of</option>
+                          <option value="IS">Iceland</option>
+                          <option value="IT">Italy</option>
+                          <option value="JE">Jersey</option>
+                          <option value="JM">Jamaica</option>
+                          <option value="JO">Jordan</option>
+                          <option value="JP">Japan</option>
+                          <option value="KE">Kenya</option>
+                          <option value="KG">Kyrgyzstan</option>
+                          <option value="KH">Cambodia</option>
+                          <option value="KI">Kiribati</option>
+                          <option value="KM">Comoros</option>
+                          <option value="KN">Saint Kitts and Nevis</option>
+                          <option value="KP">Korea, Democratic People's Republic of</option>
+                          <option value="KR">Korea, Republic of</option>
+                          <option value="KW">Kuwait</option>
+                          <option value="KY">Cayman Islands</option>
+                          <option value="KZ">Kazakhstan</option>
+                          <option value="LA">Laos (Lao People's Democratic Republic)</option>
+                          <option value="LB">Lebanon</option>
+                          <option value="LC">Saint Lucia</option>
+                          <option value="LI">Liechtenstein</option>
+                          <option value="LK">Sri Lanka</option>
+                          <option value="LR">Liberia</option>
+                          <option value="LS">Lesotho</option>
+                          <option value="LT">Lithuania</option>
+                          <option value="LU">Luxembourg</option>
+                          <option value="LV">Latvia</option>
+                          <option value="LY">Libya</option>
+                          <option value="MA">Morocco</option>
+                          <option value="MC">Monaco</option>
+                          <option value="MD">Moldova, Republic of</option>
+                          <option value="ME">Montenegro</option>
+                          <option value="MF">Saint Martin</option>
+                          <option value="MG">Madagascar</option>
+                          <option value="MH">Marshall Islands</option>
+                          <option value="MK">North Macedonia</option>
+                          <option value="ML">Mali</option>
+                          <option value="MM">Myanmar</option>
+                          <option value="MN">Mongolia</option>
+                          <option value="MO">Macao</option>
+                          <option value="MP">Northern Mariana Islands</option>
+                          <option value="MQ">Martinique</option>
+                          <option value="MR">Mauritania</option>
+                          <option value="MS">Montserrat</option>
+                          <option value="MT">Malta</option>
+                          <option value="MU">Mauritius</option>
+                          <option value="MV">Maldives</option>
+                          <option value="MW">Malawi</option>
+                          <option value="MX">Mexico</option>
+                          <option value="MY">Malaysia</option>
+                          <option value="MZ">Mozambique</option>
+                          <option value="NA">Namibia</option>
+                          <option value="NC">New Caledonia</option>
+                          <option value="NE">Niger</option>
+                          <option value="NF">Norfolk Island</option>
+                          <option value="NG">Nigeria</option>
+                          <option value="NI">Nicaragua</option>
+                          <option value="NL">Netherlands</option>
+                          <option value="NO">Norway</option>
+                          <option value="NP">Nepal</option>
+                          <option value="NR">Nauru</option>
+                          <option value="NU">Niue</option>
+                          <option value="NZ">New Zealand</option>
+                          <option value="OM">Oman</option>
+                          <option value="PA">Panama</option>
+                          <option value="PE">Peru</option>
+                          <option value="PF">French Polynesia</option>
+                          <option value="PG">Papua New Guinea</option>
+                          <option value="PH">Philippines</option>
+                          <option value="PK">Pakistan</option>
+                          <option value="PL">Poland</option>
+                          <option value="PM">Saint Pierre and Miquelon</option>
+                          <option value="PN">Pitcairn</option>
+                          <option value="PR">Puerto Rico</option>
+                          <option value="PS">Palestine</option>
+                          <option value="PT">Portugal</option>
+                          <option value="PW">Palau</option>
+                          <option value="PY">Paraguay</option>
+                          <option value="QA">Qatar</option>
+                          <option value="RE">Réunion</option>
+                          <option value="RO">Romania</option>
+                          <option value="RS">Serbia</option>
+                          <option value="RU">Russian Federation</option>
+                          <option value="RW">Rwanda</option>
+                          <option value="SA">Saudi Arabia</option>
+                          <option value="SB">Solomon Islands</option>
+                          <option value="SC">Seychelles</option>
+                          <option value="SD">Sudan</option>
+                          <option value="SE">Sweden</option>
+                          <option value="SG">Singapore</option>
+                          <option value="SH">Saint Helena, Ascension and Tristan da Cunha</option>
+                          <option value="SI">Slovenia</option>
+                          <option value="SJ">Svalbard and Jan Mayen Islands</option>
+                          <option value="SK">Slovakia</option>
+                          <option value="SL">Sierra Leone</option>
+                          <option value="SM">San Marino</option>
+                          <option value="SN">Senegal</option>
+                          <option value="SO">Somalia</option>
+                          <option value="SR">Suriname</option>
+                          <option value="SS">South Sudan</option>
+                          <option value="ST">Sao Tome and Principe</option>
+                          <option value="SV">El Salvador</option>
+                          <option value="SX">Sint Maarten (Dutch part)</option>
+                          <option value="SY">Syrian Arab Republic</option>
+                          <option value="SZ">Kingdom of Eswatini</option>
+                          <option value="TC">Turks and Caicos Islands</option>
+                          <option value="TD">Chad</option>
+                          <option value="TF">French Southern Territories</option>
+                          <option value="TG">Togo</option>
+                          <option value="TH">Thailand</option>
+                          <option value="TJ">Tajikistan</option>
+                          <option value="TK">Tokelau</option>
+                          <option value="TL">Timor-Leste</option>
+                          <option value="TM">Turkmenistan</option>
+                          <option value="TN">Tunisia</option>
+                          <option value="TO">Tonga</option>
+                          <option value="TR">Republic of Türkiye</option>
+                          <option value="TT">Trinidad and Tobago</option>
+                          <option value="TV">Tuvalu</option>
+                          <option value="TW">Taiwan (Republic of China)</option>
+                          <option value="TZ">Tanzania, United Republic of</option>
+                          <option value="UA">Ukraine</option>
+                          <option value="UG">Uganda</option>
+                          <option value="UM">US Minor Outlying Islands</option>
+                          <option value="US" selected>United States</option>
+                          <option value="UY">Uruguay</option>
+                          <option value="UZ">Uzbekistan</option>
+                          <option value="VA">Holy See (Vatican City State)</option>
+                          <option value="VC">Saint Vincent and the Grenadines</option>
+                          <option value="VE">Venezuela, Bolivarian Republic of</option>
+                          <option value="VG">Virgin Islands, British</option>
+                          <option value="VI">Virgin Islands, U.S.</option>
+                          <option value="VN">Vietnam</option>
+                          <option value="VU">Vanuatu</option>
+                          <option value="WF">Wallis and Futuna Islands</option>
+                          <option value="WS">Samoa</option>
+                          <option value="XK">Kosovo</option>
+                          <option value="YE">Yemen</option>
+                          <option value="YT">Mayotte</option>
+                          <option value="ZA">South Africa</option>
+                          <option value="ZM">Zambia</option>
+                          <option value="ZW">Zimbabwe</option>
+                      </select>
+                    </div>
+                    <div class="px-6 pb-6 pt-4">
+                      <button class="submit btn w-full !h-10 !rounded-[100px]">SUBMIT</button>
+                    </div>
+                  </div>
+                </select-country>
+
+              </div>
+              <div class="flex gap-2 items-center relative">
+                {% render 'icon-truck', class: 'w-7 h-auto text-primary flex-none' %}
+                <span class="text-primary text-sm leading-5 font-light flex-none">
+                  Order today and get it by:
+                </span>
+
+                <div class="group cursor-pointer ">
+                  <span class="estimate-arrival text-[#444] text-sm leading-5 font-semibold border-b-2 border-dashed border-[#444]">{{ 'now' | date: "%s" | plus: seconds3 | date: "%b %d" }} - {{ 'now' | date: "%s" | plus: seconds4 | date: "%b %d" }}</span>
+                  <div class="opacity-0 invisible group-hover:opacity-100 group-hover:visible bg-background shadow-tooltip rounded-xl p-5 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-[484px] max-w-[calc(100%_-_32px)] z-10">
+                    <div class="icon-text grid grid-cols-3 items-start bg-background w-full rounded py-2">
+                      <div class="icon-text-wrapper w-full group relative justify-center flex flex-col items-start text-left">
+                        <div class="group relative mb-2 w-full before:border-[#77c888] before:border-solid before:border-t-2 before:block before:w-full before:right-0 before:absolute before:top-1/2 before:-translate-y-1/2 before:z-0">
+                          <span class="icon p-1.5 mr-auto rounded-full leading-none block w-8 h-8 bg-[#ccc] relative">{% render 'icon-box-delivery', class: 'w-4.5 h-4.5 inline align-middle text-left' %}</span>
+                        </div>
+                        <div class="date-text group px-1">
+                          <span class="text-sm text-primary font-heading font-semibold leading-4 block">
+                            {%- assign mod_today = 'now' | date: '%a' -%}
+                            {% if shop.locale == 'de' %}
+                              {% if mod_today == 'Sat' %}
+                                <span>{{ "now" | date: '%s' | date: "%d %b" }}</span>
+                              {% elsif mod_today == 'Sun' %}
+                                <span>{{ "now" | date: '%s' | date: "%d %b" }}</span>
+                              {%- else -%}
+                                <span>{{ "now" | date: "%d %b" }}</span>
+                              {% endif %}
+                            {% else %}
+                              {% if mod_today == 'Sat' %}
+                                <span>{{ "now" | date: '%s' | date: "%b %d" }}</span>
+                              {% elsif mod_today == 'Sun' %}
+                                <span>{{ "now" | date: '%s' | date: "%b %d" }}</span>
+                              {%- else -%}
+                                <span>{{ "now" | date: "%b %d" }}</span>
+                              {% endif %}
+                            {% endif %}
+                          </span>
+                          <span class="note text-xs mt-0.5 font-light leading-5 text-[#DC143C] block">
+                            {{ 'products.shipping_information.order_placed' | t }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="icon-text-wrapper w-full group relative justify-center flex flex-col items-center text-center">
+                        <div class="group relative mb-2 w-full before:border-[#77c888] before:border-solid before:border-t-2 before:block before:w-full before:right-0 before:absolute before:top-1/2 before:-translate-y-1/2 before:z-0">
+                          <span class="icon p-1.5 mx-auto rounded-full leading-none block w-8 h-8 bg-[#ccc] relative">{% render 'icon-delivery', class: 'w-4.5 h-4.5 inline align-middle text-center' %}</span>
+                        </div>
+                        <div class="date-text group px-1">
+                          <span class="order-ship text-sm text-primary font-heading font-semibold leading-4 block"></span>
+                          <span class="note text-xs mt-0.5 font-light leading-5 text-[#DC143C] block">
+                            {{ 'products.shipping_information.order_ships' | t }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="icon-text-wrapper w-full group relative justify-center flex flex-col items-end text-right">
+                        <div class="group relative mb-2 w-full before:border-[#77c888] before:border-solid before:border-t-2 before:block before:w-full before:right-0 before:absolute before:top-1/2 before:-translate-y-1/2 before:z-0">
+                          <span class="icon p-1.5 ml-auto rounded-full leading-none block w-8 h-8 bg-[#ccc] relative">{% render 'icon-gift-box', class: 'w-4.5 h-4.5 inline align-middle text-center' %}</span>
+                        </div>
+                        <div class="date-text group px-1">
+                          <span class="estimate-arrival text-sm text-primary font-heading font-semibold leading-4 block"></span>
+                          <span class="note text-xs mt-0.5 font-light leading-5 text-[#DC143C] block">
+                            {{ 'products.shipping_information.delivered' | t }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {% if block.settings.shipping_mini_description != blank %}
+                      <div class="mt-1 shipping-mini-description">
+                        {{ block.settings.shipping_mini_description }}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </delivery-wrapper>
+          {% when 'custom_liquid' %}
+            {% if block.settings.custom_liquid_code != blank %}
+              <div class="my-6">
+                {{ block.settings.custom_liquid_code }}
+              </div>
+            {% endif %}
+         {%- when 'other_products' -%}
+            {% if product.metafields.custom.products.value != blank %}
+              <fieldset class="block mb-4 ">
+                <div class="mb-2 flex justify-between items-center">
+                  <legend class="form__label flex gap-2 text-base text-primary capitalize font-medium font-heading leading-5">
+                    Product
+                  </legend>
+                </div>
+                <div class="option-values flex flex-wrap gap-2">
+                  {%- for link in product.metafields.custom.products.value -%}
+                    {% assign productUrlProducts = product.url | split: '/' | last | split: '?' | first | strip %}
+                    {% assign linkUrlProducts = link.url | split: '/' | last | split: '?' | first | strip %}
+                    <{% if linkUrlProducts == productUrlProducts %}span {% else %}a href="{{ link.url }}" {% endif %} class="{% if linkUrlProducts == productUrlProducts %}active !cursor-default {% endif %} cursor-pointer option-item font-medium text-base leading-none lg:leading-none min-h-[44px] bg-background text-primary border border-border py-2 px-3 flex text-center rounded-2xl items-center justify-center w-auto whitespace-nowrap option-label">
+                      {{ link.text }}
+                    </{% if linkUrlProducts == productUrlProducts %}span{% else %}a{% endif %}>
+                  {%- endfor -%}
+                </div>
+              </fieldset>
+            {% endif %}
+          {%- when 'other_versions' -%}
+            {% if product.metafields.custom.other_versions.value != blank %}
+              <fieldset class="flex flex-wrap mb-4 gap-2">
+                <div class="mb-3 flex justify-between items-center">
+                  <legend class="form__label flex gap-2 text-base text-primary capitalize font-medium font-heading leading-5">
+                    Other versions:
+                  </legend>
+                </div>
+                <div class="option-values flex flex-wrap gap-1">
+                  {%- for link in product.metafields.custom.other_versions.value -%}
+                    {% assign productUrl = product.url | split: '/' | last | split: '?' | first | strip %}
+                    {% assign linkUrl = link.url | split: '/' | last | split: '?' | first | strip %}
+                    <{% if linkUrl == productUrl %}span {% else %}a href="{{ link.url }}" {% endif %}target="_blank" class="{% if linkUrl == productUrl %}active !cursor-default {% endif %} cursor-pointer text-primary [&:not(.active)]:text-special text-base font-medium font-heading leading-5 uppercase [&:not(.active)]:underline 
+                      {% unless forloop.last %} after:content-['_|_']{% endunless %}">
+                      {{ link.text }}
+                    </{% if linkUrl == productUrl %}span{% else %}a{% endif %}>
+                  {%- endfor -%}
+                </div>
+              </fieldset>
+            {% endif %}
+          {%- when 'variant_picker' -%}
+            {%- unless product.has_only_default_variant -%}
+              {% if block.settings.type != 'dropdown' %}
+                <variant-radios 
+                  class="block pt-1 scroll-m-14 lg:scroll-m-31" id="variant-radios-{{ section.id }}" 
+                  {% if block.settings.enable_default_variant %} enable-default-variant{% endif %} 
+                  data-section="{{ section.id }}" 
+                  data-url="{{ product.url }}" 
+                  {% if update_url == false %} data-update-url="false" {% endif %}
+                >
+                  {% assign countSize = 0 %}
+                  {%- for option in product.options_with_values -%}
+                    {% assign fatherIndex = forloop.index0 %}
+                    {% assign optionName = option.name | downcase %}
+                    
+                    {% if optionName contains 'size' or optionName contains 'taille' or optionName contains 'taglia' or optionName contains 'größe' %}
+                      <fieldset class="js product-form__input block mb-4 {% if forloop.last %}!mb-0{% endif %} option-size-wrapper data-layer-{{ fatherIndex }}" data-name="Size">
+                        <div class="title-option-size mb-3 flex justify-between items-center">
+                          <legend class="form__label flex gap-2 text-base text-primary capitalize font-medium font-heading leading-5">
+                            {{ option.name }}
+                            <span class="!hidden selected-value text-primary font-normal font-body">{{ option.selected_value }}</span>
+                            <span class="require-option capitalize font-normal text-red-500 font-heading text-sm lg:text-base !leading-[20px] hidden">{{ 'products.product.require' | t }}</span>
+                            {% if forloop.index > 1 %}
+                              {% assign optionMes = product.options_with_values[0].name | split: " " | last %}
+                              {% if forloop.index == 3 %}
+                                {% assign optionMes = product.options_with_values[1].name | split: " " | last %}
+                              {% endif %}
+                              <span class="message-option capitalize font-normal text-red-500 font-heading text-sm lg:text-base !leading-[20px] hidden">{{ 'products.product.message_option' | t: option: optionMes }}</span>
+                            {% endif %}
+                          </legend>
+                          {% unless block.settings.hide_sizeguide contains product.type %}
+                            {% if countSize == 0 %}
+                              <modal-opener data-id="#PopupModal-Sizeguide" data-active="{{ activeType }}" class="size-popup flex gap-2 text-sm items-center capitalize cursor-pointer font-semibold font-heading text-[#0070BA] underline underline-offset-2">{{ 'products.product.size_guide' | t }}{% render 'icon-right' %}</modal-opener>
+                            {% endif %}
+                          {% endunless %}
+                          {% assign countSize = 1 %}
+                        </div>
+                        <div class="title-option-size-bt flex flex-wrap gap-2">
+                          {%- for value in option.values -%}
+                            <input class="absolute opacity-0 invisible option-item{% if option.selected_value == value %} selected{% endif %}" type="radio" id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" name="{{ option.name }}" data-index="{{ fatherIndex }}" value="{{ value | escape }}" form="{{ product_form_id }}" {% if option.selected_value == value %} checked{% endif %}>
+                            <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" class="cursor-pointer option-item font-medium text-base leading-6 lg:leading-4 min-h-[44px] bg-background text-primary border border-border py-2 px-2 flex text-center rounded-2xl items-center justify-center option-size-label min-w-max max-w-8-col-variant w-full">
+                              {{ value }}
+                            </label>
+                          {%- endfor -%}
+                        </div>
+                      </fieldset>
+                    {% elsif optionName == 'color' or optionName == 'farbe' or optionName == 'colore' or optionName == 'couleur' %}
+                      <fieldset class="js product-form__input block mb-4 {% if forloop.last %}!mb-0{% endif %} option-color-wrapper data-layer-{{ fatherIndex }}" data-name="Color">
+                        <legend class="form__label mb-2 flex gap-2 text-base text-primary capitalize font-medium font-heading leading-5">
+                          {{ option.name }}
+                          <span class="!hidden selected-value text-primary font-normal font-body">{{ option.selected_value }}</span>
+                          <span class="require-option capitalize font-normal text-red-500 font-heading text-sm lg:text-base !leading-[20px] hidden">{{ 'products.product.require' | t }}</span>
+                          {% unless forloop.first %}<span class="require-option capitalize font-normal text-red-500 font-heading text-sm lg:text-base !leading-[20px] hidden">{{ 'products.product.require' | t }}</span>{% endunless %}
+                          {% if forloop.index > 1 %}
+                            {% assign optionMes = product.options_with_values[0].name | split: " " | last %}
+                            {% if forloop.index == 3 %}
+                              {% assign optionMes = product.options_with_values[1].name | split: " " | last %}
+                            {% endif %}
+                            <span class="message-option capitalize font-normal text-red-500 font-heading text-sm lg:text-base !leading-[20px] hidden">{{ 'products.product.message_option' | t: option: optionMes }}</span>
+                          {% endif %}
+                        </legend>
+                        <div class="option-color flex flex-wrap gap-2">
+                          {% assign values = '' %}
+                          {%- for value in option.values -%}
+                            {%- liquid
+                            assign swatch_value = null
+                            if value.swatch.image
+                              assign image_url = value.swatch.image | image_url: width: 150
+                              assign swatch_value = 'url(' | append: image_url | append: ')'
+                            elsif value.swatch.color
+                              assign swatch_value = value.swatch.color
+                            else
+                              assign filename = value | downcase | replace: '-' | append: '.png'
+                              assign image_url = filename | asset_image_url: width: 150
+                              assign swatch_value = value | downcase | remove: ' ' 
+                            endif
+                          -%}
+
+                          {% assign newValue = value | prepend: ' '  %}
+                            {%- unless values contains value -%}
+                              {%- liquid
+                                assign values = values | join: ','
+                                assign values = values | append: ',' | append: value
+                                assign values = values | split: ','
+                                assign bgColor = value | split: ' ' | first | handle
+                              -%}
+                              <input
+                                type="radio"
+                                class="{% if selected_option != '' %}{% unless selected_option contains newValue %}hidden {% endunless %}{% endif %}absolute opacity-0 invisible option-item"
+                                id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                data-index="{{ fatherIndex }}"
+                                name="{{ option.name }}"
+                                value="{{ value | escape }}"
+                                form="{{ product_form_id }}"
+                                {% if option.selected_value == value %}
+                                checked{% endif %}>
+                              <label
+                                for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                class="cursor-pointer group relative color border-2 w-10 h-10 border-border option-item p-[1px] rounded-full"
+                                data-product-id="{{ product.id }}"
+                                data-variant-id="{{ variant.id }}"
+                                data-option="{{ option.name | handleize }}"
+                                data-value="{{ value | escape }}"
+                              >
+                                <div class="tooltip group-hover:opacity-100 group-hover:visible left-1/2 -translate-x-1/2 text-center">{{ value | escape }}</div>
+                                <span class="color w-full h-full rounded-full border border-border !inline-block bg-center bg-no-repeat bg-cover" style="background-color:{{ swatch_value }}; background-image: url({{ image_url }});"></span>
+                              </label>
+                            {%- endunless -%}
+                          {%- endfor -%}
+                        </div>
+                      </fieldset>
+                    {% else %}
+                      <fieldset class="js product-form__input block mb-4 {% if forloop.last %}!mb-0{% endif %} selector-wrapper data-layer-{{ fatherIndex }}">
+                        <legend class="form__label mb-2 flex gap-2 text-base text-primary capitalize font-medium font-heading leading-5">
+                          {{ option.name }}
+                          <span class="!hidden selected-value text-primary font-normal font-body">{{ option.selected_value }}</span>
+                          <span class="require-option capitalize font-normal text-red-500 font-heading text-sm lg:text-base !leading-[20px] hidden">{{ 'products.product.require' | t }}</span>
+                          {% if forloop.index > 1 %}
+                            {% assign optionMes = product.options_with_values[0].name | split: " " | last %}
+                            {% if forloop.index == 3 %}
+                              {% assign optionMes = product.options_with_values[1].name | split: " " | last %}
+                            {% endif %}
+                            <span class="message-option capitalize font-normal text-red-500 font-heading text-sm lg:text-base !leading-[20px] hidden">{{ 'products.product.message_option' | t: option: optionMes }}</span>
+                          {% endif %}
+                        </legend>
+                        <div class="option-values flex flex-wrap gap-2">
+                          {%- for value in option.values -%}
+                            <input class="absolute opacity-0 invisible option-item{% if option.selected_value == value %} selected{% endif %}" type="radio" id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" name="{{ option.name }}" data-index="{{ fatherIndex }}" value="{{ value | escape }}" form="{{ product_form_id }}" {% if option.selected_value == value %} checked{% endif %}>
+                            <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" class="cursor-pointer option-item font-medium text-base leading-none lg:leading-none min-h-[44px] bg-background text-primary border border-border py-2 px-3 flex text-center rounded-2xl items-center justify-center w-auto whitespace-nowrap option-label">
+                              {{ value }}
+                            </label>
+                          {%- endfor -%}
+                        </div>
+                      </fieldset>
+                    {% endif %}
+                  {%- endfor -%}
+                  <script type="application/json">
+                    {{ product.variants | json }}
+                  </script>
+                </variant-radios>
+              {% else %}
+                <variant-selects 
+                  class="block pt-1 scroll-m-14 lg:scroll-m-31" id="variant-selects-{{ section.id }}" 
+                  {% if block.settings.enable_default_variant %} enable-default-variant{% endif %} 
+                  data-section="{{ section.id }}" 
+                  data-url="{{ product.url }}" 
+                  {% if update_url == false %} data-update-url="false" {% endif %}
+                >
+                  {%- for option in product.options_with_values -%}
+                    {% assign fatherIndex = forloop.index0 %}
+                    {% assign optionName = option.name | downcase %}
+
+                      <fieldset class="js product-form__input block mb-4 {% if forloop.last %}!mb-0{% endif %} selector-wrapper data-layer-{{ fatherIndex }}">
+                        <legend class="form__label mb-2 flex gap-2 text-base text-primary capitalize font-medium font-heading leading-5">
+                          {{ option.name }}
+                          <span class="!hidden selected-value text-primary font-normal font-body">{{ option.selected_value }}</span>
+                          <span class="require-option capitalize font-normal text-red-500 font-heading text-sm lg:text-base !leading-[20px] hidden">{{ 'products.product.require' | t }}</span>
+                          {% if forloop.index > 1 %}
+                            {% assign optionMes = product.options_with_values[0].name | split: " " | last %}
+                            {% if forloop.index == 3 %}
+                              {% assign optionMes = product.options_with_values[1].name | split: " " | last %}
+                            {% endif %}
+                            <span class="message-option capitalize font-normal text-red-500 font-heading text-sm lg:text-base !leading-[20px] hidden">{{ 'products.product.message_option' | t: option: optionMes }}</span>
+                          {% endif %}
+                        </legend>
+                        <div class="option-values flex flex-wrap gap-2">
+                          <select id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" 
+                            name="{{ option.name }}" 
+                            data-index="{{ fatherIndex }}" 
+                            value="{{ value | escape }}" 
+                            form="{{ product_form_id }}" 
+                            class="cursor-pointer option-item font-medium text-base leading-none lg:leading-none min-h-[44px] bg-background text-primary 
+                            border border-border py-2 px-3 flex text-left rounded-2xl items-center justify-center w-full whitespace-nowrap option-label">
+                            {%- for value in option.values -%}
+                              <option 
+                                {% if option.selected_value == value %} selected{% endif %}
+                                value="{{ value }}"
+                              >
+                                {{ value }}
+                              </option>
+                            {%- endfor -%}
+                          </select>
+                        </div>
+                      </fieldset>
+                  {%- endfor -%}
+                  <script type="application/json">
+                    {{ product.variants | json }}
+                  </script>
+                </variant-selects>
+              {% endif %}
+            {%- endunless -%}
+          {%- when 'text-image' -%}
+            {% style %}
+              [data-block-id="{{ block.id }}"] {
+                background: {{ block.settings.background_color_image_text }};
+                color: {{ block.settings.colors_text }};
+              }
+            {% endstyle %}
+            <div data-block-id="{{ block.id }}" class="grid grid-cols-3 gap-1 p-3 lg:p-4 mt-3 lg:mt-8 rounded-lg">
+              {% if block.settings.image-1 != blank or block.settings.text-1 != blank %}
+                <div class="text-center">
+                  {% if block.settings.image-1 != blank %}
+                    <img class="mb-3 mx-auto block text-center max-w-[40px]" src="{{ block.settings.image-1 | image_url: width: 150 }}" alt="{{ block.settings.text-1 }}" loading="lazy" width="{{ block.settings.image-1.width }}" height="{{ block.settings.image-1.height }}"/>
+                  {% endif %}
+                  {%- if block.settings.text-1 != blank -%}
+                    <span class="capitalize text-xs leading-2 lg:text-sm lg:leading-2 inline-block font-heading font-normal">{{ block.settings.text-1 }}</span>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+              {% if block.settings.image-2 != blank or block.settings.text-2 != blank %}
+                <div class="text-image text-center">
+                  {% if block.settings.image-2 != blank %}
+                    <img src="{{ block.settings.image-2 | image_url: width: 150 }}" alt="{{ block.settings.text-2 | escape }}" loading="lazy" width="{{ block.settings.image-2.width }}" height="{{ block.settings.image-2.height }}" class="mb-3 mx-auto block text-center max-w-[40px]" />
+                  {% endif %}
+                  {%- if block.settings.text-2 != blank -%}
+                    <span class="capitalize text-xs leading-2 lg:text-sm lg:leading-2 inline-block font-heading font-normal">{{ block.settings.text-2 }}</span>
+                  {% endif %}
+                </div>
+              {%- endif -%}
+              {%- if block.settings.image-3 != blank or block.settings.text-3 != blank -%}
+                <div class="text-image text-center">
+                  {% if block.settings.image-3 != blank %}
+                    <img src="{{ block.settings.image-3 | image_url: width: 150 }}" alt="{{ block.settings.text-3 | escape }}" loading="lazy" width="{{ block.settings.image-3.width }}" height="{{ block.settings.image-3.height }}" class="mb-3 mx-auto block text-center max-w-[40px]" />
+                  {% endif %}
+                  {%- if block.settings.text-3 != blank -%}
+                    <span class="capitalize text-xs leading-2 lg:text-sm lg:leading-2 inline-block font-heading font-normal">{{ block.settings.text-3 }}</span>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- when 'buy_buttons' -%}
+            <product-form class="block">
+              {%- form 'product', product, id: product_form_id, class: 'form mt-8', novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+                <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" disabled>
+
+                {% if product.metafields.custom.add_on_product.value != blank %}
+                  {% assign productAddOn = product.metafields.custom.add_on_product.value %}
+                  <div class="p-2.5 border-border border rounded-xl">
+                    <h2 class="text-xl capitalize font-bold text-primary mb-4">Add-on Combo Service</h2>
+                    <div class="flex items-start gap-2 w-full">
+                      <img 
+                        src="{{ productAddOn.featured_image |  image_url: width: 200 }}" 
+                        class="rounded-lg"
+                        width="100" 
+                        height="100" 
+                        alt="Add on"
+                      >
+                      <div>
+                        <div class="flex items-center gap-1 mb-2 text-base">Only {% render 'price-mini' , product: productAddOn , use_variant: true %}</div>
+                        <h3 class="text-sm leading-4 font-semibold truncate-line two-lines overflow-hidden mb-2">{{ productAddOn.title }}</h3>
+                        {% if productAddOn.description %}
+                          <div class="text-sm leading-2 mb-2 truncate-line two-lines overflow-hidden">{{ productAddOn.description }}</div>
+                        {% endif %}
+
+                        <label  
+                          for="add-on-product"
+                          class="relative w-full flex items-start gap-2 cursor-pointer select-none"
+                        >
+                        <input
+                            type="checkbox"
+                            name="add-on-product"
+                            value="{{ productAddOn.selected_or_first_available_variant.id }}"
+                            class="opacity-0 invisible absolute top-0 left-0 mt-0.5"
+                            id="add-on-product"
+                            checked
+                          >
+                          <svg
+                            aria-hidden="true"
+                            class="icon icon-checkmark absolute w-2.5 h-2.5 top-2.5 left-2.5 -translate-x-1/2 -translate-y-1/2 opacity-0 invisible mt-0.5"
+                            width="0.625rem"
+                            height="0.625rem"
+                            viewBox="0 0 11 7"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path d="M1.5 3.5L2.83333 4.75L4.16667 6L9.5 1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            class="icon-box w-5 h-5 flex-none mt-0.5"
+                            viewBox="0 0 18 18"
+                            fill="none"
+                          >
+                            <path d="M16.625 2.75C16.625 1.99061 16.0094 1.375 15.25 1.375H2.75C1.99061 1.375 1.375 1.99061 1.375 2.75V15.25C1.375 16.0094 1.99061 16.625 2.75 16.625H15.25C16.0094 16.625 16.625 16.0094 16.625 15.25V2.75Z" stroke="currentColor" stroke-linejoin="round"/>
+                          </svg>
+
+                          <span class="block cursor-pointer text-sm font-semibold text-primary">
+                            Chose to buy
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+
+                {% if settings.protect_order_product != blank %}
+                  <div class="flex items-center gap-2 mt-3">
+                    <label
+                      for="protect-product"
+                      class="relative w-full flex items-start gap-2 cursor-pointer select-none"
+                    >
+                     <input
+                        type="checkbox"
+                        name="protect-product"
+                        value="{{ settings.protect_order_product.selected_or_first_available_variant.id }}"
+                        class="opacity-0 invisible absolute top-0 left-0 mt-0.5"
+                        id="protect-product"
+                        checked
+                      >
+                      <svg
+                        aria-hidden="true"
+                        class="icon icon-checkmark absolute w-2.5 h-2.5 top-2.5 left-2.5 -translate-x-1/2 -translate-y-1/2 opacity-0 invisible mt-0.5"
+                        width="0.625rem"
+                        height="0.625rem"
+                        viewBox="0 0 11 7"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M1.5 3.5L2.83333 4.75L4.16667 6L9.5 1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        class="icon-box w-5 h-5 flex-none mt-0.5"
+                        viewBox="0 0 18 18"
+                        fill="none"
+                      >
+                        <path d="M16.625 2.75C16.625 1.99061 16.0094 1.375 15.25 1.375H2.75C1.99061 1.375 1.375 1.99061 1.375 2.75V15.25C1.375 16.0094 1.99061 16.625 2.75 16.625H15.25C16.0094 16.625 16.625 16.0094 16.625 15.25V2.75Z" stroke="currentColor" stroke-linejoin="round"/>
+                      </svg>
+
+                      <span class="block cursor-pointer text-sm font-semibold text-primary">
+                        Protect Your Item With Shipping Protection <span class="text-secondary">(+ {{ settings.protect_order_product.price | money_with_currency }})</span>
+                      </span>
+                    </label>
+                  </div>
+                  <p class="text-sm font-normal text-subtext mt-1 ml-7">Protect your order from damage, loss, or theft during shipping.</p>
+                {% endif %}
+
+                <div class="flex items-start gap-4 mb-4 mt-6">
+                  <label for="Quantity-{{ section.id }}" class="block text-base font-medium mb-2.5 text-primary">Qty</label>
+                  <quantity-input class="flex items-center relative w-fit h-8 rounded-3xl">
+                    <button class="w-8 h-8 border border-[#f2f2f6] bg-[#f2f2f6] rounded-l-3xl relative text-secondary transition-all before:content-empty before:w-full before:h-full before:z-[1] before:absolute before:left-0 before:top-0" name="minus" type="button" role="button" aria-label="minus">
+                      {% render 'icon-minus', class: 'w-4 h-4 mx-auto' %}
+                    </button>
+                    <input class="appearance-none border-none bg-[#f2f2f669] text-secondary text-xl leading-2 p-0.5 w-14 h-full font-medium text-center !ring-0 shadow-none focus:border-none" 
+                      type="number"
+                      name="quantity"
+                      id="Quantity-{{ section.id }}"
+                      data-cart-quantity="{{ cart_qty }}"
+                      data-min="{{ product.selected_or_first_available_variant.quantity_rule.min }}"
+                      min="{{ product.selected_or_first_available_variant.quantity_rule.min }}"
+                      {% if product.selected_or_first_available_variant.quantity_rule.max != null %}
+                        data-max="{{ product.selected_or_first_available_variant.quantity_rule.max }}"
+                        max="{{ product.selected_or_first_available_variant.quantity_rule.max }}"
+                      {% endif %}
+                      step="{{ product.selected_or_first_available_variant.quantity_rule.increment }}"
+                      value="{{ product.selected_or_first_available_variant.quantity_rule.min }}"
+                      form="{{ product_form_id }}"
+                      aria-label="quantity">
+                    <button class="w-8 h-8 border border-[#f2f2f6] bg-[#f2f2f6] rounded-r-3xl relative text-secondary transition-all before:content-empty before:w-full before:h-full before:z-[1] before:absolute before:left-0 before:top-0" name="plus" type="button" role="button" aria-label="plus">
+                      {% render 'icon-plus', class: 'w-4 h-4 mx-auto' %}
+                    </button>
+                  </quantity-input>
+                </div>
+                <div class="product-form__error-message-wrapper flex gap-1 items-center text-base text-error px-3 py-1.5 fixed top-3 right-3 bg-background shadow-megamenu rounded transition-all" role="alert" hidden>
+                  <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-error w-4 h-4"  viewBox="0 0 13 13">
+                    <circle cx="6.5" cy="6.50049" r="5.5" stroke="white" stroke-width="2"/>
+                    <circle cx="6.5" cy="6.5" r="5.5" fill="#EB001B" stroke="#EB001B" stroke-width="0.7" />
+                    <path d="M5.87413 3.52832L5.97439 7.57216H7.02713L7.12739 3.52832H5.87413ZM6.50076 9.66091C6.88091 9.66091 7.18169 9.37267 7.18169 9.00504C7.18169 8.63742 6.88091 8.34917 6.50076 8.34917C6.12061 8.34917 5.81982 8.63742 5.81982 9.00504C5.81982 9.37267 6.12061 9.66091 6.50076 9.66091Z" fill="white" />
+                    <path d="M5.87413 3.17832H5.51535L5.52424 3.537L5.6245 7.58083L5.63296 7.92216H5.97439H7.02713H7.36856L7.37702 7.58083L7.47728 3.537L7.48617 3.17832H7.12739H5.87413ZM6.50076 10.0109C7.06121 10.0109 7.5317 9.57872 7.5317 9.00504C7.5317 8.43137 7.06121 7.99918 6.50076 7.99918C5.94031 7.99918 5.46982 8.43137 5.46982 9.00504C5.46982 9.57872 5.94031 10.0109 6.50076 10.0109Z" fill="white" stroke="#EB001B" stroke-width="0.7">
+                  </svg>
+                  <span class="product-form__error-message"></span>
+                </div>
+
+                <add-to-cart class="block relative min-h-[54px]">
+                  <div class="product-form__buttons flex flex-wrap gap-2">
+                    <button type="submit" name="add" class="product-form__submit button button--full-width btn-2" {% if product.selected_or_first_available_variant.available == false %} disabled{% endif %}>
+                      <span>
+                        {%- if product.selected_or_first_available_variant.available -%}
+                          {{ 'products.product.add_to_cart' | t }}
+                        {%- else -%}
+                          {{ 'products.product.sold_out' | t }}
+                        {%- endif -%}
+                      </span>
+                      <div class="loading-overlay__spinner hidden"></div>
+                    </button>
+                    <div class="button-unavailable"></div>
+                  </div>
+                </add-to-cart>
+
+                {%- if block.settings.show_dynamic_checkout -%}
+                  <button type="submit" name="checkout" class="btn-special w-full mt-2 !rounded-[20px] !text-lg !capitalize !h-13.5 !font-semibold">
+                    Buy Now
+                  </button>
+                {%- endif -%}
+
+                <div class="h-4 mb-8 lg:mb-6 relative mt-4">
+                  <div 
+                    class="absolute top-0 left-0 block w-full h-full" 
+                    data-pp-style-text-align="left"
+                    data-pp-message 
+                    data-pp-style-text-size="16"
+                    data-pp-pageType="product-details">
+                  </div>
+                </div>   
+              {%- endform -%}
+            </product-form>
+
+            {% render 'cart-notification' %}
+          {%- when 'product-demand' -%}
+            {% if productSold > 0 %}
+              <div class="flex items-center gap-1 text-sm text-[#e4142d] font-semibold mb-2">
+                {{ 'products.product.demand' | t: productSold: productSold }}
+              </div>
+            {% endif %}
+          {%- when 'flash-sale' -%}
+            <div class="flex items-center gap-1.5 text-sm text-[#e4142d] font-semibold mb-4">
+              <div class="w-7 h-auto">
+                {% render 'icon-fire-menu', class: "w-5 h-5" %}
+              </div>
+              <span>
+                Flash Sale from {{  'now' | date: '%s' | minus: 259200 | date: "%b %d" }} - {{  'now' | date: '%s' | plus: 86400 | date: "%b %d" }} only
+              </span>
+            </div>
+          {%- when 'payment-method' -%}
+            <div class="flex flex-wrap justify-start gap-2 mb-9 lg:mb-8">
+              {%- assign enabled_payment_types = "apple_pay,shopify_pay,visa,master,paypal,american_express" | remove: ' ' | split: ',' -%}
+              {% for type in enabled_payment_types %}
+                {% if type == 'american_express' %}
+                  {% render 'icon-amex-border', class: 'w-auto h-8' %}
+                {% elsif type == 'apple_pay' %}
+                  {% render 'icon-applepay', class: 'w-auto h-8' %}
+                {% else %}
+                  {%- assign first_svg = type | payment_type_svg_tag: class: 'w-auto h-8' | split: '<title' | first -%}
+                  {%- assign last_svg = type | payment_type_svg_tag: class: 'w-auto h-8' | split: '</title>' | last -%}
+                  {{- first_svg -}}{{- last_svg -}}
+                {% endif %}
+              {%- endfor -%}
+            </div>
+          {%- when 'collapsible_tab' -%}
+            {% if block.settings.title != blank %}
+              <accordion-toggle class="block w-full relative bg-background py-3">
+                <div class="summary flex items-center justify-between gap-3 cursor-pointer relative">
+                  <h2 class="flex items-center gap-2.5 text-base font-medium text-primary leading-4 font-heading relative">
+                    {% if block.settings.icon == 'note' %}
+                      {% render 'icon-mini-note' %}    
+                    {% elsif block.settings.icon == 'truck' %}
+                      {% render 'icon-mini-truck' %}                      
+                    {% endif %}
+                    {{ block.settings.title }}
+                  </h2>
+                  <span class="icon-add relative">{%- render 'icon-down', class: 'w-6 h-6 text-primary' -%}</span>
+                  <span class="icon-minus relative">{%- render 'icon-up', class: 'w-6 h-6 text-primary' -%}</span>
+                </div>
+                <div class="details p-0">
+                  {% if block.settings.product_description %}
+                    {{ product.description }}
+                  {% else %}
+                    {{ block.settings.description }}
+                  {% endif %}
+                </div>
+              </accordion-toggle>
+            {% endif %}
+          {%- when 'collapsible-shipping' -%}
+            {% if block.settings.title != blank %}
+              <accordion-toggle class="block w-full relative bg-background py-3">
+                <div class="summary flex items-center justify-between gap-3 cursor-pointer relative">
+                  <h2 class="flex items-center gap-2.5 text-base font-medium text-primary leading-4 font-heading relative">
+                    {% if block.settings.icon == 'note' %}
+                      {% render 'icon-mini-note' %}    
+                    {% elsif block.settings.icon == 'truck' %}
+                      {% render 'icon-mini-truck' %}                      
+                    {% endif %}
+                    {{ block.settings.title }}
+                  </h2>
+                  <span class="icon-add relative">{%- render 'icon-down', class: 'w-6 h-6 text-primary' -%}</span>
+                  <span class="icon-minus relative">{%- render 'icon-up', class: 'w-6 h-6 text-primary' -%}</span>
+                </div>
+                <div class="details p-0">
+                  <delivery-wrapper class="icon-text grid grid-cols-3 items-start bg-background w-full rounded py-4 px-1" data-assets-folder="{{ 'us.svg' | asset_url }}" data-content='{{ shipping | json }}'>
+                    <div class="icon-text-wrapper w-full group relative justify-center flex flex-col items-start text-left">
+                      <div class="group relative mb-2 w-full before:border-[#77c888] before:border-solid before:border-t-2 before:block before:w-full before:right-0 before:absolute before:top-1/2 before:-translate-y-1/2 before:z-0">
+                        <span class="icon p-1.5 mr-auto rounded-full leading-none block w-8 h-8 bg-[#ccc] relative">{% render 'icon-box-delivery', class: 'w-4.5 h-4.5 inline align-middle text-left' %}</span>
+                      </div>
+                      <div class="date-text group px-1">
+                        <span class="text-sm text-primary font-heading font-semibold leading-4 block">
+                          {%- assign mod_today = 'now' | date: '%a' -%}
+                          {% if shop.locale == 'de' %}
+                            {% if mod_today == 'Sat' %}
+                              <span>{{ "now" | date: '%s' | date: "%d %b" }}</span>
+                            {% elsif mod_today == 'Sun' %}
+                              <span>{{ "now" | date: '%s' | date: "%d %b" }}</span>
+                            {%- else -%}
+                              <span>{{ "now" | date: "%d %b" }}</span>
+                            {% endif %}
+                          {% else %}
+                            {% if mod_today == 'Sat' %}
+                              <span>{{ "now" | date: '%s' | date: "%b %d" }}</span>
+                            {% elsif mod_today == 'Sun' %}
+                              <span>{{ "now" | date: '%s' | date: "%b %d" }}</span>
+                            {%- else -%}
+                              <span>{{ "now" | date: "%b %d" }}</span>
+                            {% endif %}
+                          {% endif %}
+                        </span>
+                        <span class="note text-xs mt-0.5 font-light leading-5 text-[#DC143C] block">
+                          {{ 'products.shipping_information.order_placed' | t }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="icon-text-wrapper w-full group relative justify-center flex flex-col items-center text-center">
+                      <div class="group relative mb-2 w-full before:border-[#77c888] before:border-solid before:border-t-2 before:block before:w-full before:right-0 before:absolute before:top-1/2 before:-translate-y-1/2 before:z-0">
+                        <span class="icon p-1.5 mx-auto rounded-full leading-none block w-8 h-8 bg-[#ccc] relative">{% render 'icon-delivery', class: 'w-4.5 h-4.5 inline align-middle text-center' %}</span>
+                      </div>
+                      <div class="date-text group px-1">
+                        <span class="order-ship text-sm text-primary font-heading font-semibold leading-4 block"></span>
+                        <span class="note text-xs mt-0.5 font-light leading-5 text-[#DC143C] block">
+                          {{ 'products.shipping_information.order_ships' | t }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="icon-text-wrapper w-full group relative justify-center flex flex-col items-end text-right">
+                      <div class="group relative mb-2 w-full before:border-[#77c888] before:border-solid before:border-t-2 before:block before:w-full before:right-0 before:absolute before:top-1/2 before:-translate-y-1/2 before:z-0">
+                        <span class="icon p-1.5 ml-auto rounded-full leading-none block w-8 h-8 bg-[#ccc] relative">{% render 'icon-gift-box', class: 'w-4.5 h-4.5 inline align-middle text-center' %}</span>
+                      </div>
+                      <div class="date-text group px-1">
+                        <span class="estimate-arrival text-sm text-primary font-heading font-semibold leading-4 block"></span>
+                        <span class="note text-xs mt-0.5 font-light leading-5 text-[#DC143C] block">
+                          {{ 'products.shipping_information.delivered' | t }}
+                        </span>
+                      </div>
+                    </div>
+                  </delivery-wrapper>
+                          
+                  {% if block.settings.description %}
+                    <div class="mt-3">
+                      {{ block.settings.description }}
+                    </div>
+                  {% endif %}
+                </div>
+              </accordion-toggle>
+            {% endif %}
+          {%- when 'popup' -%}
+            {% if block.settings.title != blank %}
+              <modal-opener class="product-popup-modal__opener block cursor-pointer mb-5 lg:mb-6 no-js-hidden" data-id="#PopupModal-{{ block.id }}" {{ block.shopify_attributes }}>
+                {% render 'icon-info', class: 'w-4 h-4 inline' %}
+                <span class="ml-1 inline">{{ block.settings.title }}</span>
+              </modal-opener>
+            {% endif %}
+            <modal-dialog class="hidden fixed w-full h-full bg-black bg-opacity-20 top-0 left-0 z-30" id="PopupModal-{{ block.id }}">
+              <div class="p-4 lg:p-12 rounded-xl shadow-popup max-w-[calc(100vw_-_32px)] max-h-[calc(100vh_-_32px)] lg:overflow-auto bg-background absolute top-1/2 left-1/2 z-30 -translate-x-1/2 -translate-y-1/2">
+                {% if block.settings.title != blank %}
+                  <div class="text-h3  pb-5 mb-5 lg:pb-6 lg:mb-6 border-b border-primary">{{ block.settings.title }}</div>
+                {% endif %}
+                <div class="grid gap-6 grid-cols-{{ block.settings.columns_mobile }} md:grid-cols-{{ block.settings.columns_tablet }} lg:grid-cols-{{ block.settings.columns_desktop }}">
+                  {% if block.settings.image_1 != blank or block.settings.title_1 != blank or block.settings.description_1 != blank %}
+                    <div class="flex flex-col gap-1.5 items-center justify-center">
+                      {% if block.settings.image_1 != blank %}
+                        <img 
+                          src="{{ block.settings.image_1 | image_url: width: block.settings.image_1.width }}"
+                          class="w-full h-full rounded-xl overflow-hidden object-cover"
+                          alt="{{ block.settings.title }} 1" 
+                          loading="lazy"
+                          width="{{ block.settings.image_1.width }}"
+                          height="{{ block.settings.image_1.height }}"
+                        />
+                      {% endif %}
+                      {% if block.settings.title_1 != blank %}
+                        <p class="text-lg font-semibold text-center m-0">{{ block.settings.title_1 }}</p>
+                      {% endif %}
+                      {% if block.settings.description_1 != blank %}
+                        <p class="text-base italic text-center m-0">{{ block.settings.description_1 }}</p>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  {% if block.settings.image_2 != blank or block.settings.title_2 != blank or block.settings.description_2 != blank %}
+                    <div class="flex flex-col gap-1.5 items-center justify-center">
+                      {% if block.settings.image_2 != blank %}
+                        <img 
+                          src="{{ block.settings.image_2 | image_url: width: block.settings.image_2.width }}"
+                          class="w-full h-full rounded-xl overflow-hidden object-cover"
+                          alt="{{ block.settings.title }} 2" 
+                          loading="lazy"
+                          width="{{ block.settings.image_2.width }}"
+                          height="{{ block.settings.image_2.height }}"
+                        />
+                      {% endif %}
+                      {% if block.settings.title_2 != blank %}
+                        <p class="text-lg font-semibold text-center m-0">{{ block.settings.title_2 }}</p>
+                      {% endif %}
+                      {% if block.settings.description_2 != blank %}
+                        <p class="text-base italic text-center m-0">{{ block.settings.description_2 }}</p>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  {% if block.settings.image_3 != blank or block.settings.title_3 != blank or block.settings.description_3 != blank %}
+                    <div class="flex flex-col gap-1.5 items-center justify-center">
+                      {% if block.settings.image_3 != blank %}
+                        <img 
+                          src="{{ block.settings.image_3 | image_url: width: block.settings.image_3.width }}"
+                          class="w-full h-full rounded-xl overflow-hidden object-cover"
+                          alt="{{ block.settings.title }} 3" 
+                          loading="lazy"
+                          width="{{ block.settings.image_3.width }}"
+                          height="{{ block.settings.image_3.height }}"
+                        />
+                      {% endif %}
+                      {% if block.settings.title_3 != blank %}
+                        <p class="text-lg font-semibold text-center m-0">{{ block.settings.title_3 }}</p>
+                      {% endif %}
+                      {% if block.settings.description_3 != blank %}
+                        <p class="text-base italic text-center m-0">{{ block.settings.description_3 }}</p>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  {% if block.settings.image_4 != blank or block.settings.title_4 != blank or block.settings.description_4 != blank %}
+                    <div class="flex flex-col gap-1.5 items-center justify-center">
+                      {% if block.settings.image_4 != blank %}
+                        <img 
+                          src="{{ block.settings.image_4 | image_url: width: block.settings.image_4.width }}"
+                          class="w-full h-full rounded-xl overflow-hidden object-cover"
+                          alt="{{ block.settings.title }} 4" 
+                          loading="lazy"
+                          width="{{ block.settings.image_4.width }}"
+                          height="{{ block.settings.image_4.height }}"
+                        />
+                      {% endif %}
+                      {% if block.settings.title_4 != blank %}
+                        <p class="text-lg font-semibold text-center m-0">{{ block.settings.title_4 }}</p>
+                      {% endif %}
+                      {% if block.settings.description_4 != blank %}
+                        <p class="text-base italic text-center m-0">{{ block.settings.description_4 }}</p>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  {% if block.settings.image_5 != blank or block.settings.title_5 != blank or block.settings.description_5 != blank %}
+                    <div class="flex flex-col gap-1.5 items-center justify-center">
+                      {% if block.settings.image_5 != blank %}
+                        <img 
+                          src="{{ block.settings.image_5 | image_url: width: block.settings.image_5.width }}"
+                          class="w-full h-full rounded-xl overflow-hidden object-cover"
+                          alt="{{ block.settings.title }} 5" 
+                          loading="lazy"
+                          width="{{ block.settings.image_5.width }}"
+                          height="{{ block.settings.image_5.height }}"
+                        />
+                      {% endif %}
+                      {% if block.settings.title_5 != blank %}
+                        <p class="text-lg font-semibold text-center m-0">{{ block.settings.title_5 }}</p>
+                      {% endif %}
+                      {% if block.settings.description_5 != blank %}
+                        <p class="text-base italic text-center m-0">{{ block.settings.description_5 }}</p>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  {% if block.settings.image_6 != blank or block.settings.title_6 != blank or block.settings.description_6 != blank %}
+                    <div class="flex flex-col gap-1.5 items-center justify-center">
+                      {% if block.settings.image_6 != blank %}
+                        <img 
+                          src="{{ block.settings.image_6 | image_url: width: block.settings.image_6.width }}"
+                          class="w-full h-full rounded-xl overflow-hidden object-cover"
+                          alt="{{ block.settings.title }} 6" 
+                          loading="lazy"
+                          width="{{ block.settings.image_6.width }}"
+                          height="{{ block.settings.image_6.height }}"
+                        />
+                      {% endif %}
+                      {% if block.settings.title_6 != blank %}
+                        <p class="text-lg font-semibold text-center m-0">{{ block.settings.title_6 }}</p>
+                      {% endif %}
+                      {% if block.settings.description_6 != blank %}
+                        <p class="text-base italic text-center m-0">{{ block.settings.description_6 }}</p>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+                <span class="text-primary shadow-megamenu cursor-pointer bg-background w-10 h-10 flex items-center justify-center rounded-full absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full lg:top-7 lg:right-7 lg:left-auto lg:translate-y-0 lg:translate-x-0 close">
+                  {% render 'icon-close', class: 'w-6 h-6' %}
+                </span>
+              </div>
+            </modal-dialog>
+        {%- endcase -%}
+      {%- endfor -%}
+    </product-infor>
+  </div>
+
+  {%- liquid
+    if product.selected_or_first_available_variant.featured_media
+      assign seo_media = product.selected_or_first_available_variant.featured_media
+    else
+      assign seo_media = product.featured_media
+    endif
+  -%}
+  {% assign collectionList = '' %}
+  {% for collection in product.collections %}
+    {% unless forloop.first %}
+      {% assign collectionList = collectionList | append: ',' | append: '"' | append: collection.title | append: '"' %}
+    {% else %}
+      {% assign collectionList = '"' | append: collection.title | append: '"'  %}
+    {% endunless %}
+  {% endfor %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org/",
+      "@type": "Product",
+      "name": {{ product.title | json }},
+      "url": {{ request.origin | append: product.url | json }},
+      {% if seo_media -%}
+        "image" : [{{ seo_media | image_url: width: seo_media.preview_image.width | prepend: "https:" | json }}],
+      {%- endif %}
+      {% if product.description != "blank" %}
+        "description": {{ product.description | strip_html | json }},
+      {% endif %}
+      {% if product.selected_or_first_available_variant.sku != blank -%}
+        "sku": {{ product.selected_or_first_available_variant.sku | json }},
+      {%- endif %}
+      "brand": {
+        "@type": "Brand",
+        "name": {{ product.type | json }}
+      }{% if product.variants.size > 1 %},
+        "offers": [
+          {%- for variant in product.variants -%}
+            {
+              "@type": "Offer",
+              {%- if variant.sku != blank -%}
+                "sku": {{ variant.sku | json }},
+              {%- endif -%}
+              {%- if variant.barcode.size == 12 -%}
+                "gtin12": {{ variant.barcode }},
+              {%- endif -%}
+              {%- if variant.barcode.size == 13 -%}
+                "gtin13": {{ variant.barcode }},
+              {%- endif -%}
+              {%- if variant.barcode.size == 14 -%}
+                "gtin14": {{ variant.barcode }},
+              {%- endif -%}
+                "availability": "http://schema.org/{% if variant.available %} InStock{% else %}OutOfStock{% endif %}",
+                "price": "{{ variant.price | money_without_currency | replace: ",", "" | replace: ".", "" | replace: " ", "" }}",
+                "priceCurrency": {{ cart.currency.iso_code | json }},
+                "url": {{ request.origin | append: variant.url | json }}
+            }{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        ]
+      {% endif %}
+    }
+  </script>
+</section>
+{% capture src_url %}{{ 'template-product.js' | asset_url }}{% endcapture %}
+{% render 'atom_script', src: src_url, priority: 'normal', type: "defer" %}
+
+{% if settings.customily %}
+  <script src="https://cdn.customily.com/customily.js" defer></script>
+  <script src="https://cdn.customily.com/shopify/static/customily.shopify.script.unified.js" defer></script>
+
+  <script defer>
+
+    window.addEventListener(
+      "customily-preview-modal-show",
+      () => {
+        document
+          .querySelector(".customily-modal-preview-only .main")
+          .insertAdjacentHTML("beforeend", `<div class="absolute bottom-0 bg-background w-full p-5 rounded-b-xl"><button class="add-to-cart-preview w-full !max-w-[250px] mx-auto btn-2 py-3 px-6 !rounded-2xl">Add To Cart</button></div>`);
+
+        const addToCartButton = document.querySelector(".add-to-cart-preview");
+        addToCartButton.addEventListener("click", () => {
+          document.querySelector("add-to-cart").addToCart();
+          document
+            .querySelector(".customily-modal-preview-only .customily-close-button")
+            .click();
+        });
+      },
+      { once: true }
+    );
+
+  </script>
+{% endif %}
+<script defer src="https://www.paypal.com/sdk/js?client-id=ATBEvCNMEBg4vADetZKPULe2uR5RVw7lQhTnaP76nuCG3ZrZK74g--zENE-gPybdLVIXlAugJA1in3Au&components=messages" data-namespace="PayPalSDK"></script>
+
+{% schema %}
+  {
+    "name": "Template product",
+    "tag": "section",
+    "blocks": [
+      {
+        "type": "@app"
+      },
+      {
+        "type": "text",
+        "name": "Text",
+        "settings": [
+          {
+            "type": "text",
+            "id": "text",
+            "default": "Text block",
+            "label": "Text"
+          },
+          {
+            "type": "select",
+            "id": "text_style",
+            "options": [
+              {
+                "value": "body",
+                "label": "Body"
+              },
+              {
+                "value": "subtitle",
+                "label": "Subtitle"
+              },
+              {
+                "value": "uppercase",
+                "label": "Uppercase"
+              }
+            ],
+            "default": "body",
+            "label": "Text style"
+          }
+        ]
+      },
+      {
+        "type": "shipping-box",
+        "name": "Shipping box",
+        "settings": [
+          {
+            "type": "richtext",
+            "id": "shipping_mini_description",
+            "label": "Shipping mini description"
+          }
+        ]
+      },
+      {
+        "type": "collapsible-shipping",
+        "name": "Collapsible shipping ",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "type": "select",
+            "id": "icon",
+            "options": [
+              {
+                "value": "none",
+                "label": "None"
+              },
+              {
+                "value": "note",
+                "label": "Note"
+              },
+              {
+                "value": "truck",
+                "label": "Truck"
+              }
+            ],
+            "default": "note",
+            "label": "Icon"
+          },
+          {
+            "type": "richtext",
+            "id": "description",
+            "label": "Description"
+          }
+        ]
+      },
+      {
+        "type": "text-image",
+        "name": "Text Image",
+        "settings": [
+          {
+            "type": "color",
+            "id": "background_color_image_text",
+            "label": "Background",
+            "default": "#FFFFFF"
+          },
+          {
+            "type": "color",
+            "id": "colors_text",
+            "default": "#808080",
+            "label": "Color text"
+          },
+          {
+            "type": "image_picker",
+            "id": "image-1",
+            "label": "Image"
+          },
+          {
+            "type": "text",
+            "id": "text-1",
+            "default": "Text block",
+            "label": "Text"
+          },
+          {
+            "type": "image_picker",
+            "id": "image-2",
+            "label": "Image"
+          },
+          {
+            "type": "text",
+            "id": "text-2",
+            "default": "Text block",
+            "label": "Text"
+          },
+          {
+            "type": "image_picker",
+            "id": "image-3",
+            "label": "Image"
+          },
+          {
+            "type": "text",
+            "id": "text-3",
+            "default": "Text block",
+            "label": "Text"
+          }
+        ]
+      },
+      {
+        "type": "title",
+        "name": "Title",
+        "limit": 1
+      },
+      {
+        "type": "rating",
+        "name": "Rating",
+        "limit": 1
+      },
+      {
+        "type": "price",
+        "name": "Price",
+        "limit": 1
+      },
+      {
+        "type": "quantity_selector",
+        "name": "Quantity",
+        "limit": 1
+      },
+      {
+        "type": "other_versions",
+        "name": "Other versions",
+        "limit": 1
+      },
+      {
+        "type": "other_products",
+        "name": "Other products",
+        "limit": 1
+      },
+      {
+        "type": "custom_liquid",
+        "name": "Custom liquid",
+        "settings": [
+          {
+            "type": "liquid",
+            "id": "custom_liquid_code",
+            "label": "Custom Liquid Code"
+          }
+        ]
+      },
+      {
+        "type": "variant_picker",
+        "name": "Variant picker",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "checkbox",
+            "id": "enable_default_variant",
+            "label": "Enable default variant",
+            "default": true
+          },
+          {
+            "type": "select",
+            "id": "type",
+            "options": [
+              {
+                "value": "dropdown",
+                "label": "Dropdown"
+              },
+              {
+                "value": "pill",
+                "label": "Pill"
+              }
+            ],
+            "default": "pill",
+            "label": "Variant type"
+          },
+          {
+            "type": "text",
+            "id": "hide_sizeguide",
+            "label": "Hide sizeguide for",
+            "info": "Exp: Apparel, Tumbler, ..."
+          }
+        ]
+      },
+      {
+        "type": "product-demand",
+        "name": "Product demand",
+        "limit": 1,
+        "settings": []
+      },      
+      {
+        "type": "payment-method",
+        "name": "Payment method",
+        "limit": 1,
+        "settings": []
+      },
+      {
+        "type": "flash-sale",
+        "name": "Flash sale",
+        "limit": 1,
+        "settings": []
+      },
+      {
+        "type": "buy_buttons",
+        "name": "Buy button",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "checkbox",
+            "id": "show_dynamic_checkout",
+            "label": "Show dynamic checkout",
+            "default": false
+          }
+        ]
+      },
+      {
+        "type": "collapsible_tab",
+        "name": "Collapsible tab",
+        "settings": [
+          {
+            "type": "select",
+            "id": "icon",
+            "options": [
+              {
+                "value": "none",
+                "label": "None"
+              },
+              {
+                "value": "note",
+                "label": "Note"
+              },
+              {
+                "value": "truck",
+                "label": "Truck"
+              }
+            ],
+            "default": "note",
+            "label": "Icon"
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "type": "checkbox",
+            "id": "product_description",
+            "label": "Use product description"
+          },
+          {
+            "type": "richtext",
+            "id": "description",
+            "label": "Description"
+          }
+        ]
+      },
+      {
+        "type": "popup",
+        "name": "Custom Popup",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Popup title"
+          },
+          {
+            "type": "header",
+            "content": "Columns"
+          },
+          {
+            "type": "range",
+            "id": "columns_desktop",
+            "min": 1,
+            "max": 3,
+            "default": 3,
+            "step": 1,
+            "label": "Columns desktop"
+          },
+          {
+            "type": "range",
+            "id": "columns_tablet",
+            "min": 1,
+            "max": 3,
+            "default": 2,
+            "step": 1,
+            "label": "Columns tablet"
+          },
+          {
+            "type": "range",
+            "id": "columns_mobile",
+            "min": 1,
+            "max": 3,
+            "default": 2,
+            "step": 1,
+            "label": "Columns mobile"
+          },
+          {
+            "type": "header",
+            "content": "Content"
+          },
+          {
+            "type": "header",
+            "content": "Content 1"
+          },
+          {
+            "type": "image_picker",
+            "id": "image_1",
+            "label": "Image 1"
+          },
+          {
+            "type": "text",
+            "id": "title_1",
+            "label": "Title 1"
+          },
+          {
+            "type": "text",
+            "id": "description_1",
+            "label": "Description 1"
+          },
+          {
+            "type": "header",
+            "content": "Content 2"
+          },
+          {
+            "type": "image_picker",
+            "id": "image_2",
+            "label": "Image 2"
+          },
+          {
+            "type": "text",
+            "id": "title_2",
+            "label": "Title 2"
+          },
+          {
+            "type": "text",
+            "id": "description_2",
+            "label": "Description 2"
+          },
+          {
+            "type": "header",
+            "content": "Content 3"
+          },
+          {
+            "type": "image_picker",
+            "id": "image_3",
+            "label": "Image 3"
+          },
+          {
+            "type": "text",
+            "id": "title_3",
+            "label": "Title 3"
+          },
+          {
+            "type": "text",
+            "id": "description_3",
+            "label": "Description 3"
+          },
+          {
+            "type": "header",
+            "content": "Content 4"
+          },
+          {
+            "type": "image_picker",
+            "id": "image_4",
+            "label": "Image 4"
+          },
+          {
+            "type": "text",
+            "id": "title_4",
+            "label": "Title 4"
+          },
+          {
+            "type": "text",
+            "id": "description_4",
+            "label": "Description 4"
+          },
+          {
+            "type": "header",
+            "content": "Content 5"
+          },
+          {
+            "type": "image_picker",
+            "id": "image_5",
+            "label": "Image 5"
+          },
+          {
+            "type": "text",
+            "id": "title_5",
+            "label": "Title 5"
+          },
+          {
+            "type": "text",
+            "id": "description_5",
+            "label": "Description 5"
+          },
+          {
+            "type": "header",
+            "content": "Content 6"
+          },
+          {
+            "type": "image_picker",
+            "id": "image_6",
+            "label": "Image 6"
+          },
+          {
+            "type": "text",
+            "id": "title_6",
+            "label": "Title 6"
+          },
+          {
+            "type": "text",
+            "id": "description_6",
+            "label": "Description 6"
+          }
+        ]
+      }
+    ],
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "limit_media",
+        "label": "Limit media",
+        "default": false
+      }
+    ]
+  }
+{% endschema %}
