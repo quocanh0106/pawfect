@@ -7,13 +7,13 @@
  * made to this file may be overwritten.
  * ------------------------------------------------------------
  */
- {
+{
   "current": {
     "favicon": "shopify://shop_images/Family_Store_logo_1200x1200_a15d9551-90bd-47bd-a6cf-12388a8bf90f.png",
-    "logo": "shopify://shop_images/logover2-04-04.png",
-    "logo_width": 184,
+    "logo": "shopify://shop_images/pawfecthouse.png",
+    "logo_width": 140,
     "logo_mb": "shopify://shop_images/logover2-04-04.png",
-    "logo_width_mb": 116,
+    "logo_width_mb": 96,
     "rem": 15,
     "type_heading_font_medium": "poppins_n5",
     "type_body_font": "poppins_n4",
@@ -25,7 +25,7 @@
     "color_body_text": "#000000",
     "color_subtext": "#626262",
     "color_border": "#cccccc",
-    "container": 1280,
+    "container": 1320,
     "container_2": 1480,
     "padding_desktop": 16,
     "padding_tablet": 16,
@@ -204,7 +204,7 @@
         ],
         "settings": {
           "background_color": "#202024",
-          "heading_color": "FF4830",
+          "heading_color": "#ff4830",
           "text_color": "#ffffff"
         }
       },
